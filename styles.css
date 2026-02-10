@@ -469,6 +469,50 @@ body {
   border-color: var(--accent);
 }
 
+/* Login ekranı — ilk açılış */
+.login-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 1001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  padding: 24px;
+}
+
+.login-screen-inner {
+  width: 100%;
+  max-width: 380px;
+}
+
+.login-logo {
+  margin: 0 0 4px;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text);
+  text-align: center;
+}
+
+.login-sub {
+  margin: 0 0 24px;
+  font-size: 14px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.login-desc {
+  margin: 0 0 20px;
+  font-size: 14px;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.4;
+}
+
+.login-screen-inner .auth-form {
+  margin-top: 8px;
+}
+
 /* Auth — Giriş / Senkronizasyon */
 .auth-wrap {
   display: flex;

@@ -332,40 +332,39 @@
 
   function initAuth() {
     var authWrap = document.getElementById("authWrap");
-    var authBtn = document.getElementById("authBtn");
     var authUser = document.getElementById("authUser");
     var authLogout = document.getElementById("authLogout");
-    var authModal = document.getElementById("authModal");
-    var authForm = document.getElementById("authForm");
-    var authEmail = document.getElementById("authEmail");
-    var authPassword = document.getElementById("authPassword");
-    var authError = document.getElementById("authError");
-    var authSubmit = document.getElementById("authSubmit");
-    var authSwitch = document.getElementById("authSwitch");
-    if (!authWrap || !supabase) return;
-    authWrap.style.display = "";
+    var loginScreen = document.getElementById("loginScreen");
+    var appContent = document.getElementById("appContent");
+    var loginForm = document.getElementById("loginScreenForm");
+    var loginEmail = document.getElementById("loginScreenEmail");
+    var loginPassword = document.getElementById("loginScreenPassword");
+    var loginError = document.getElementById("loginScreenError");
+    var loginSubmit = document.getElementById("loginScreenSubmit");
+    var loginSwitch = document.getElementById("loginScreenSwitch");
+    if (!supabase) return;
+
+    function setScreen(loggedIn) {
+      if (loginScreen) loginScreen.style.display = loggedIn ? "none" : "flex";
+      if (appContent) appContent.style.display = loggedIn ? "" : "none";
+    }
+    setScreen(false);
+    if (authWrap) authWrap.style.display = "";
 
     function setAuthUI(user) {
-      if (user) {
-        authBtn.style.display = "none";
-        authUser.style.display = "";
-        authUser.textContent = user.email || "Hesap";
-        authLogout.style.display = "";
-      } else {
-        authBtn.style.display = "";
-        authUser.style.display = "none";
-        authLogout.style.display = "none";
+      if (authWrap) {
+        if (user) {
+          if (authUser) { authUser.style.display = ""; authUser.textContent = user.email || "Hesap"; }
+          if (authLogout) authLogout.style.display = "";
+        } else {
+          if (authUser) authUser.style.display = "none";
+          if (authLogout) authLogout.style.display = "none";
+        }
       }
     }
 
-    function showError(msg) {
-      authError.textContent = msg || "";
-      authError.style.display = msg ? "block" : "none";
-    }
-
-    function closeModal() {
-      if (authModal) authModal.style.display = "none";
-      showError("");
+    function showLoginError(msg) {
+      if (loginError) { loginError.textContent = msg || ""; loginError.style.display = msg ? "block" : "none"; }
     }
 
     function fetchAndReplaceState(userId) {
@@ -375,66 +374,60 @@
     }
 
     supabase.auth.onAuthStateChange(function (event, session) {
-      setAuthUI(session ? session.user : null);
-      if (session && session.user) fetchAndReplaceState(session.user.id);
+      var user = session ? session.user : null;
+      setAuthUI(user);
+      setScreen(!!user);
+      if (user) fetchAndReplaceState(user.id);
     });
 
     supabase.auth.getSession().then(function (r) {
       if (r.data && r.data.session) {
         setAuthUI(r.data.session.user);
+        setScreen(true);
         fetchAndReplaceState(r.data.session.user.id);
       } else {
         setAuthUI(null);
+        setScreen(false);
       }
     });
 
-    authBtn.addEventListener("click", function () {
-      authMode = "signin";
-      authSubmit.textContent = "Giriş yap";
-      authSwitch.textContent = "Kayıt ol";
-      authModal.style.display = "flex";
-      authForm.reset();
-      showError("");
-    });
-
-    authForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      var email = (authEmail.value || "").trim();
-      var password = authPassword.value || "";
-      showError("");
-      if (authMode === "signup") {
-        supabase.auth.signUp({ email: email, password: password }).then(function (r) {
-          if (r.error) showError(r.error.message || "Kayıt başarısız.");
-          else { showError("Kayıt tamam. E-posta onayı gerekebilir; giriş yapın."); closeModal(); }
-        });
-      } else {
-        supabase.auth.signInWithPassword({ email: email, password: password }).then(function (r) {
-          if (r.error) showError(r.error.message || "Giriş başarısız.");
-          else closeModal();
-        });
-      }
-    });
-
-    authSwitch.addEventListener("click", function () {
-      authMode = authMode === "signin" ? "signup" : "signin";
-      authSubmit.textContent = authMode === "signin" ? "Giriş yap" : "Kayıt ol";
-      authSwitch.textContent = authMode === "signin" ? "Kayıt ol" : "Giriş yap";
-      showError("");
-    });
-
-    authLogout.addEventListener("click", function () {
-      supabase.auth.signOut();
-    });
-
-    if (document.getElementById("authModalClose")) {
-      document.getElementById("authModalClose").addEventListener("click", closeModal);
+    if (loginForm) {
+      loginForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var email = (loginEmail && loginEmail.value ? loginEmail.value : "").trim();
+        var password = loginPassword ? loginPassword.value : "";
+        showLoginError("");
+        if (authMode === "signup") {
+          supabase.auth.signUp({ email: email, password: password }).then(function (r) {
+            if (r.error) showLoginError(r.error.message || "Kayıt başarısız.");
+            else showLoginError("Kayıt tamam. E-posta onayı gerekebilir; giriş yapın.");
+          });
+        } else {
+          supabase.auth.signInWithPassword({ email: email, password: password }).then(function (r) {
+            if (r.error) showLoginError(r.error.message || "Giriş başarısız.");
+          });
+        }
+      });
     }
-    if (authModal) {
-      authModal.querySelector(".auth-modal-backdrop").addEventListener("click", closeModal);
+    if (loginSwitch) {
+      loginSwitch.addEventListener("click", function () {
+        authMode = authMode === "signin" ? "signup" : "signin";
+        if (loginSubmit) loginSubmit.textContent = authMode === "signin" ? "Giriş yap" : "Kayıt ol";
+        if (loginSwitch) loginSwitch.textContent = authMode === "signin" ? "Kayıt ol" : "Giriş yap";
+        showLoginError("");
+      });
     }
+
+    if (authLogout) authLogout.addEventListener("click", function () { supabase.auth.signOut(); });
   }
 
   ["on-sartlar", "kapsama", "destekler", "yillik"].forEach(renderList);
   renderProgress();
-  if (supabase) initAuth();
+
+  if (supabase) {
+    initAuth();
+  } else {
+    var appContent = document.getElementById("appContent");
+    if (appContent) appContent.style.display = "";
+  }
 })();

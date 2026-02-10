@@ -7,6 +7,24 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <div id="loginScreen" class="login-screen" style="display:none" aria-label="Giriş">
+    <div class="login-screen-inner">
+      <h1 class="login-logo">Giliga Toys</h1>
+      <p class="login-sub">E-İhracat Yol Haritası</p>
+      <p class="login-desc">Devam etmek için giriş yapın veya kayıt olun.</p>
+      <form id="loginScreenForm" class="auth-form">
+        <input type="email" id="loginScreenEmail" class="auth-input" placeholder="E-posta" required autocomplete="email" />
+        <input type="password" id="loginScreenPassword" class="auth-input" placeholder="Şifre" required autocomplete="current-password" />
+        <div id="loginScreenError" class="auth-error" style="display:none"></div>
+        <div class="auth-form-actions">
+          <button type="submit" id="loginScreenSubmit" class="auth-btn auth-btn-primary">Giriş yap</button>
+          <button type="button" id="loginScreenSwitch" class="auth-btn auth-btn-outline">Kayıt ol</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="appContent" class="app-wrapper">
   <div class="app">
     <header class="header">
       <div class="header-brand">
@@ -105,6 +123,7 @@
     <footer class="footer">
       <p>T.C. Ticaret Bakanlığı — E-İhracat Destekleri Rehberi (5986 sayılı Karar). <a href="https://ticaret.gov.tr/destekler/e-ihracat-destekleri/genelge-ekleri" target="_blank" rel="noopener">Genelge ekleri</a> · <a href="https://ticaret.gov.tr/destekler/ihracat-destekleri/kep-ve-e-imza-usulu-hakkinda" target="_blank" rel="noopener">KEP / e-imza</a></p>
     </footer>
+  </div>
   </div>
 
   <div id="authModal" class="auth-modal" role="dialog" aria-label="Giriş" style="display:none">
