@@ -52,9 +52,13 @@ Sol menü **Project Settings** (dişli) → **API**:
 
 **Önemli:** `supabase-config.js` dosyasını Git’e eklemeyin (içinde anahtar var). `.gitignore` içinde zaten yoksa şunu ekleyin: `supabase-config.js`
 
-## 5. E-posta onayını kapatma (isteğe bağlı)
+## 5. Tek kullanıcı ve giriş ayarları
 
-Geliştirme veya hızlı kullanım için: **Authentication** → **Providers** → **Email** → **Confirm email** kapalı yapılabilir. Canlıda güvenlik için açık bırakmanız önerilir.
+Uygulama **sadece giriş** destekler; kayıt yoktur. Tek bir kullanıcı ile çalışır:
+
+1. **Kullanıcı oluşturma:** **Authentication** → **Users** → **Add user** → E-posta ve şifre girin → **Create user**.
+2. **Kayıt kapatma:** **Authentication** → **Providers** → **Email** → **Enable Sign Up** kapalı yapın (yeni kullanıcı kaydı engellenir).
+3. **E-posta onayını kapatma:** **Confirm email** kapalı yapın (e-posta doğrulama linki istemez).
 
 ## 6. Vercel’de canlı sitede “Giriş yap” çıkması
 

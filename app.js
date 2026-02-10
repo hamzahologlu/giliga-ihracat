@@ -2,7 +2,7 @@
   const STORAGE_KEY = "eihracat-destekleri-takip";
   var supabase = null;
   var saveToCloudTimer = null;
-  var authMode = "signin"; // "signin" | "signup"
+  var authMode = "signin";
 
   function getState() {
     try {
@@ -341,7 +341,6 @@
     var loginPassword = document.getElementById("loginScreenPassword");
     var loginError = document.getElementById("loginScreenError");
     var loginSubmit = document.getElementById("loginScreenSubmit");
-    var loginSwitch = document.getElementById("loginScreenSwitch");
     if (!supabase) return;
 
     function setScreen(loggedIn) {
@@ -397,24 +396,9 @@
         var email = (loginEmail && loginEmail.value ? loginEmail.value : "").trim();
         var password = loginPassword ? loginPassword.value : "";
         showLoginError("");
-        if (authMode === "signup") {
-          supabase.auth.signUp({ email: email, password: password }).then(function (r) {
-            if (r.error) showLoginError(r.error.message || "Kayıt başarısız.");
-            else showLoginError("Kayıt tamam. E-posta onayı gerekebilir; giriş yapın.");
-          });
-        } else {
-          supabase.auth.signInWithPassword({ email: email, password: password }).then(function (r) {
-            if (r.error) showLoginError(r.error.message || "Giriş başarısız.");
-          });
-        }
-      });
-    }
-    if (loginSwitch) {
-      loginSwitch.addEventListener("click", function () {
-        authMode = authMode === "signin" ? "signup" : "signin";
-        if (loginSubmit) loginSubmit.textContent = authMode === "signin" ? "Giriş yap" : "Kayıt ol";
-        if (loginSwitch) loginSwitch.textContent = authMode === "signin" ? "Kayıt ol" : "Giriş yap";
-        showLoginError("");
+        supabase.auth.signInWithPassword({ email: email, password: password }).then(function (r) {
+          if (r.error) showLoginError(r.error.message || "Giriş başarısız.");
+        });
       });
     }
 
