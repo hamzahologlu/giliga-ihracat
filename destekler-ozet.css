@@ -1,0 +1,116 @@
+/* Destekler özet sayfası */
+
+.ozet-main {
+  padding-bottom: 48px;
+}
+
+.back-link {
+  margin: 16px 0 0;
+  font-size: 0.85rem;
+}
+
+.back-link a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.back-link a:hover {
+  text-decoration: underline;
+}
+
+.ozet-section {
+  margin-bottom: 40px;
+}
+
+.ozet-section-title {
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  font-weight: 400;
+  margin: 0 0 12px;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.ozet-intro {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin: 0 0 24px;
+  line-height: 1.5;
+}
+
+.destek-kart {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  margin-bottom: 16px;
+}
+
+.destek-kart--isbirligi {
+  border-left: 3px solid var(--accent);
+}
+
+.destek-kart h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 0 0 14px;
+  color: var(--text);
+}
+
+.destek-meta {
+  margin: 0;
+  display: grid;
+  gap: 10px 0;
+}
+
+.destek-meta dt {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  margin: 0;
+}
+
+.destek-meta dd {
+  font-size: 0.875rem;
+  color: var(--text);
+  margin: 0 0 4px;
+  line-height: 1.5;
+  padding-left: 0;
+}
+
+.destek-meta dd + dt {
+  margin-top: 6px;
+}
+
+.ozet-genel .ozet-list {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 0.9rem;
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.ozet-genel .ozet-list li {
+  margin-bottom: 10px;
+}
+
+.ozet-genel .ozet-list strong {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+@media (max-width: 600px) {
+  .destek-kart {
+    padding: 16px 18px;
+  }
+
+  .destek-kart h3 {
+    font-size: 1rem;
+  }
+
+  .destek-meta dd {
+    font-size: 0.82rem;
+  }
+}

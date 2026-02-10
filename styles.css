@@ -1,0 +1,384 @@
+:root {
+  /* Giliga Toys odaklı renk paleti (globals.css ile uyumlu) */
+  --bg: #0a0a0a;
+  --surface: #14141a;
+  --surface2: #1e1e26;
+  --border: #2e3240;
+  --text: #ededed;
+  --text-muted: #a3a3a3;
+  --accent: #ff9f66;        /* Giliga turuncu */
+  --accent-dim: #b19cd9;    /* Giliga mor */
+  --success: #8b9a5b;       /* Giliga yeşil */
+  --success-bg: rgba(139, 154, 91, 0.16);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --font-sans: "DM Sans", system-ui, sans-serif;
+  --font-serif: "Instrument Serif", Georgia, serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.55;
+  min-height: 100vh;
+}
+
+.app {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 20px 48px;
+  min-height: 100vh;
+}
+
+/* Header */
+.header {
+  padding: 32px 0 28px;
+  border-bottom: 1px solid var(--border);
+}
+
+.header-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.logo {
+  font-family: var(--font-serif);
+  font-size: 1.85rem;
+  font-weight: 400;
+  margin: 0;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.back-link {
+  margin: 8px 0 0;
+  font-size: 0.85rem;
+}
+
+.back-link a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.back-link a:hover {
+  text-decoration: underline;
+}
+
+.tagline {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.progress-ring-wrap {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  margin-top: 20px;
+}
+
+.progress-ring {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.progress-ring-bg {
+  fill: none;
+  stroke: var(--surface2);
+  stroke-width: 8;
+}
+
+.progress-ring-fill {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 8;
+  stroke-linecap: round;
+  stroke-dasharray: 339.292;
+  stroke-dashoffset: 339.292;
+  transition: stroke-dashoffset 0.4s ease;
+}
+
+.progress-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* Tabs */
+.nav-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 20px 0 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.tab {
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.tab:hover {
+  background: var(--surface2);
+  color: var(--text);
+}
+
+.tab.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+
+/* Panels */
+.panel {
+  display: none;
+  padding: 24px 0 32px;
+}
+
+.panel.active {
+  display: block;
+}
+
+.panel h2 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 0 0 6px;
+  color: var(--text);
+}
+
+.panel-desc {
+  margin: 0 0 20px;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+/* Todo list */
+.todo-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.todo-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.todo-item:hover {
+  border-color: var(--surface2);
+}
+
+.todo-item.done {
+  background: var(--success-bg);
+  border-color: rgba(74, 155, 110, 0.35);
+}
+
+.todo-item.done .todo-title {
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+.todo-check {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  margin-top: 2px;
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.todo-item.done .todo-check {
+  background: var(--success);
+  border-color: var(--success);
+  color: var(--bg);
+}
+
+.todo-check svg {
+  width: 14px;
+  height: 14px;
+}
+
+.todo-check:hover {
+  border-color: var(--accent);
+}
+
+.todo-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.todo-title {
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin: 0 0 4px;
+  color: var(--text);
+}
+
+.todo-detail {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.45;
+}
+
+.todo-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.todo-note {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-style: italic;
+  max-width: 100%;
+}
+
+.todo-date {
+  font-size: 0.75rem;
+  color: var(--accent);
+}
+
+.todo-actions {
+  flex-shrink: 0;
+  display: flex;
+  gap: 6px;
+}
+
+.todo-actions button {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border: none;
+  border-radius: 6px;
+  background: var(--surface2);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.todo-actions button:hover {
+  background: var(--border);
+  color: var(--text);
+}
+
+.todo-actions button.note-btn.active {
+  background: var(--accent-dim);
+  color: var(--bg);
+}
+
+/* Footer */
+.footer {
+  padding: 28px 0 24px;
+  border-top: 1px solid var(--border);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.footer p {
+  margin: 0 0 8px;
+}
+
+.footer a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+/* Note modal / inline note */
+.note-field {
+  margin-top: 8px;
+  width: 100%;
+}
+
+.note-field textarea {
+  width: 100%;
+  min-height: 72px;
+  padding: 10px 12px;
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface2);
+  color: var(--text);
+  resize: vertical;
+}
+
+.note-field textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.note-field textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+@media (max-width: 600px) {
+  .app {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .logo {
+    font-size: 1.5rem;
+  }
+
+  .nav-tabs {
+    gap: 4px;
+  }
+
+  .tab {
+    padding: 6px 10px;
+    font-size: 0.75rem;
+  }
+
+  .todo-item {
+    flex-wrap: wrap;
+  }
+
+  .todo-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
