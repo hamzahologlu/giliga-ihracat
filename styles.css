@@ -1,19 +1,19 @@
+/* Apple-inspired: sade, ferah, göz yormayan */
+
 :root {
-  /* Giliga Toys odaklı renk paleti (globals.css ile uyumlu) */
-  --bg: #0a0a0a;
-  --surface: #14141a;
-  --surface2: #1e1e26;
-  --border: #2e3240;
-  --text: #ededed;
-  --text-muted: #a3a3a3;
-  --accent: #ff9f66;        /* Giliga turuncu */
-  --accent-dim: #b19cd9;    /* Giliga mor */
-  --success: #8b9a5b;       /* Giliga yeşil */
-  --success-bg: rgba(139, 154, 91, 0.16);
+  --bg: #fbfbfd;
+  --surface: #ffffff;
+  --surface2: #f5f5f7;
+  --border: rgba(0, 0, 0, 0.06);
+  --text: #1d1d1f;
+  --text-muted: #6e6e73;
+  --accent: #0071e3;
+  --accent-hover: #0077ed;
+  --success: #34c759;
+  --success-bg: rgba(52, 199, 89, 0.08);
   --radius: 12px;
   --radius-sm: 8px;
-  --font-sans: "DM Sans", system-ui, sans-serif;
-  --font-serif: "Instrument Serif", Georgia, serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
 }
 
 * {
@@ -25,41 +25,49 @@ body {
   font-family: var(--font-sans);
   background: var(--bg);
   color: var(--text);
-  line-height: 1.55;
+  line-height: 1.47;
+  font-size: 17px;
+  -webkit-font-smoothing: antialiased;
   min-height: 100vh;
 }
 
 .app {
-  max-width: 720px;
+  max-width: 680px;
   margin: 0 auto;
-  padding: 0 20px 48px;
+  padding: 40px 24px 64px;
   min-height: 100vh;
 }
 
-/* Header */
+/* Header — minimal */
 .header {
-  padding: 32px 0 28px;
-  border-bottom: 1px solid var(--border);
+  padding: 0 0 32px;
+  border-bottom: none;
 }
 
 .header-inner {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
 }
 
 .logo {
-  font-family: var(--font-serif);
-  font-size: 1.85rem;
-  font-weight: 400;
+  font-size: 1.75rem;
+  font-weight: 600;
   margin: 0;
   color: var(--text);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
+}
+
+.tagline {
+  margin: 0;
+  font-size: 15px;
+  color: var(--text-muted);
+  font-weight: 400;
 }
 
 .back-link {
-  margin: 8px 0 0;
-  font-size: 0.85rem;
+  margin: 16px 0 0;
+  font-size: 15px;
 }
 
 .back-link a {
@@ -71,17 +79,12 @@ body {
   text-decoration: underline;
 }
 
-.tagline {
-  margin: 0;
-  font-size: 0.9rem;
-  color: var(--text-muted);
-}
-
+/* Progress — sade daire */
 .progress-ring-wrap {
   position: relative;
-  width: 88px;
-  height: 88px;
-  margin-top: 20px;
+  width: 72px;
+  height: 72px;
+  margin-top: 24px;
 }
 
 .progress-ring {
@@ -93,17 +96,17 @@ body {
 .progress-ring-bg {
   fill: none;
   stroke: var(--surface2);
-  stroke-width: 8;
+  stroke-width: 5;
 }
 
 .progress-ring-fill {
   fill: none;
   stroke: var(--accent);
-  stroke-width: 8;
+  stroke-width: 5;
   stroke-linecap: round;
   stroke-dasharray: 339.292;
   stroke-dashoffset: 339.292;
-  transition: stroke-dashoffset 0.4s ease;
+  transition: stroke-dashoffset 0.35s ease;
 }
 
 .progress-text {
@@ -112,31 +115,41 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
+  font-size: 13px;
   font-weight: 600;
-  color: var(--accent);
+  color: var(--text-muted);
 }
 
-/* Tabs */
+/* Tabs — segmented control tarzı */
 .nav-tabs {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  padding: 20px 0 16px;
-  border-bottom: 1px solid var(--border);
+  gap: 0;
+  padding: 24px 0 20px;
+  border-bottom: none;
 }
 
 .tab {
   font-family: var(--font-sans);
-  font-size: 0.8rem;
+  font-size: 15px;
   font-weight: 500;
-  padding: 8px 14px;
+  padding: 10px 16px;
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  border-radius: 0;
   background: var(--surface);
   color: var(--text-muted);
   cursor: pointer;
-  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  transition: background 0.2s, color 0.2s;
+  margin-right: -1px;
+}
+
+.tab:first-of-type {
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+}
+
+.tab:last-of-type {
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  margin-right: 0;
 }
 
 .tab:hover {
@@ -145,15 +158,15 @@ body {
 }
 
 .tab.active {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--bg);
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--surface);
 }
 
 /* Panels */
 .panel {
   display: none;
-  padding: 24px 0 32px;
+  padding: 8px 0 40px;
 }
 
 .panel.active {
@@ -161,46 +174,49 @@ body {
 }
 
 .panel h2 {
-  font-size: 1.15rem;
+  font-size: 1.25rem;
   font-weight: 600;
   margin: 0 0 6px;
   color: var(--text);
+  letter-spacing: -0.02em;
 }
 
 .panel-desc {
-  margin: 0 0 20px;
-  font-size: 0.875rem;
+  margin: 0 0 24px;
+  font-size: 15px;
   color: var(--text-muted);
+  line-height: 1.5;
 }
 
-/* Todo list */
+/* Todo list — sade kartlar */
 .todo-list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .todo-item {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
-  padding: 14px 16px;
+  gap: 14px;
+  padding: 16px 18px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  transition: border-color 0.2s, background 0.2s;
+  transition: background 0.2s, border-color 0.2s;
 }
 
 .todo-item:hover {
-  border-color: var(--surface2);
+  background: var(--surface);
+  border-color: rgba(0, 0, 0, 0.08);
 }
 
 .todo-item.done {
   background: var(--success-bg);
-  border-color: rgba(74, 155, 110, 0.35);
+  border-color: rgba(52, 199, 89, 0.2);
 }
 
 .todo-item.done .todo-title {
@@ -212,10 +228,10 @@ body {
   flex-shrink: 0;
   width: 22px;
   height: 22px;
-  margin-top: 2px;
+  margin-top: 1px;
   border: 2px solid var(--border);
-  border-radius: 6px;
-  background: var(--surface2);
+  border-radius: 50%;
+  background: var(--surface);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -226,16 +242,16 @@ body {
 .todo-item.done .todo-check {
   background: var(--success);
   border-color: var(--success);
-  color: var(--bg);
+  color: var(--surface);
 }
 
 .todo-check svg {
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
 }
 
 .todo-check:hover {
-  border-color: var(--accent);
+  border-color: var(--text-muted);
 }
 
 .todo-body {
@@ -244,14 +260,14 @@ body {
 }
 
 .todo-title {
-  font-size: 0.95rem;
+  font-size: 16px;
   font-weight: 500;
   margin: 0 0 4px;
   color: var(--text);
 }
 
 .todo-detail {
-  font-size: 0.8rem;
+  font-size: 14px;
   color: var(--text-muted);
   margin: 0;
   line-height: 1.45;
@@ -266,29 +282,29 @@ body {
 }
 
 .todo-note {
-  font-size: 0.75rem;
+  font-size: 13px;
   color: var(--text-muted);
-  font-style: italic;
+  font-style: normal;
   max-width: 100%;
 }
 
 .todo-date {
-  font-size: 0.75rem;
+  font-size: 13px;
   color: var(--accent);
 }
 
 .todo-actions {
   flex-shrink: 0;
   display: flex;
-  gap: 6px;
+  gap: 8px;
 }
 
 .todo-actions button {
   font-family: var(--font-sans);
-  font-size: 0.75rem;
-  padding: 4px 8px;
+  font-size: 13px;
+  padding: 6px 12px;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: var(--surface2);
   color: var(--text-muted);
   cursor: pointer;
@@ -296,25 +312,26 @@ body {
 }
 
 .todo-actions button:hover {
-  background: var(--border);
+  background: rgba(0, 0, 0, 0.08);
   color: var(--text);
 }
 
 .todo-actions button.note-btn.active {
-  background: var(--accent-dim);
-  color: var(--bg);
+  background: var(--accent);
+  color: var(--surface);
 }
 
-/* Footer */
+/* Footer — minimal */
 .footer {
-  padding: 28px 0 24px;
+  padding: 32px 0 24px;
   border-top: 1px solid var(--border);
-  font-size: 0.75rem;
+  font-size: 13px;
   color: var(--text-muted);
+  line-height: 1.5;
 }
 
 .footer p {
-  margin: 0 0 8px;
+  margin: 0 0 6px;
 }
 
 .footer a {
@@ -326,7 +343,7 @@ body {
   text-decoration: underline;
 }
 
-/* Note modal / inline note */
+/* Note textarea */
 .note-field {
   margin-top: 8px;
   width: 100%;
@@ -334,13 +351,13 @@ body {
 
 .note-field textarea {
   width: 100%;
-  min-height: 72px;
-  padding: 10px 12px;
+  min-height: 64px;
+  padding: 12px 14px;
   font-family: var(--font-sans);
-  font-size: 0.8rem;
+  font-size: 15px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  background: var(--surface2);
+  background: var(--surface);
   color: var(--text);
   resize: vertical;
 }
@@ -352,12 +369,12 @@ body {
 .note-field textarea:focus {
   outline: none;
   border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
 }
 
 @media (max-width: 600px) {
   .app {
-    padding-left: 16px;
-    padding-right: 16px;
+    padding: 28px 20px 48px;
   }
 
   .logo {
@@ -369,8 +386,26 @@ body {
   }
 
   .tab {
-    padding: 6px 10px;
-    font-size: 0.75rem;
+    flex: 1;
+    min-width: 0;
+    padding: 10px 8px;
+    font-size: 13px;
+  }
+
+  .tab:first-of-type {
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  }
+
+  .tab:nth-of-type(2) {
+    border-radius: 0;
+  }
+
+  .tab:nth-of-type(3) {
+    border-radius: 0;
+  }
+
+  .tab:last-of-type {
+    border-radius: 0 0 var(--radius-sm) var(--radius-sm);
   }
 
   .todo-item {
