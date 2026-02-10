@@ -3,62 +3,102 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Giliga Toys — E-İhracat Destek Takibi</title>
+  <title>Giliga Toys — E-İhracat Yol Haritası</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="app">
     <header class="header">
-      <div class="header-inner">
-        <h1 class="logo">Giliga Toys E-İhracat</h1>
-        <p class="tagline">Giliga Toys için E-İhracat devlet destekleri yol haritası</p>
-        <p class="back-link"><a href="destekler-ozet.html">Destekler ve kapsamları özeti →</a></p>
-        <div class="progress-ring-wrap">
-          <svg class="progress-ring" viewBox="0 0 120 120">
-            <circle class="progress-ring-bg" cx="60" cy="60" r="54" />
-            <circle class="progress-ring-fill" id="progressCircle" cx="60" cy="60" r="54" />
-          </svg>
-          <span class="progress-text" id="progressText">0%</span>
+      <div class="header-brand">
+        <h1 class="logo">Giliga Toys</h1>
+        <span class="logo-sub">E-İhracat Yol Haritası</span>
+      </div>
+      <div class="header-actions">
+        <div class="progress-pill" id="progressWrap">
+          <span class="progress-label">İlerleme</span>
+          <span class="progress-value" id="progressText">0%</span>
         </div>
+        <a href="destekler-ozet.html" class="header-link">Destekler özeti</a>
       </div>
     </header>
 
-    <main class="main">
-      <nav class="nav-tabs">
-        <button type="button" class="tab active" data-tab="on-sartlar">Ön Şartlar</button>
-        <button type="button" class="tab" data-tab="kapsama">Kapsama Alınma</button>
-        <button type="button" class="tab" data-tab="destekler">Destek Başvuruları</button>
-        <button type="button" class="tab" data-tab="yillik">Yıllık Yükümlülükler</button>
-      </nav>
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Aşamalar</div>
+          <nav class="sidebar-nav">
+            <button type="button" class="sidebar-item active" data-tab="on-sartlar">
+              <span class="sidebar-item-icon">1</span>
+              <span class="sidebar-item-label">Ön Şartlar</span>
+              <span class="sidebar-item-count" data-count="on-sartlar">0/0</span>
+            </button>
+            <button type="button" class="sidebar-item" data-tab="kapsama">
+              <span class="sidebar-item-icon">2</span>
+              <span class="sidebar-item-label">Kapsama Alınma</span>
+              <span class="sidebar-item-count" data-count="kapsama">0/0</span>
+            </button>
+            <button type="button" class="sidebar-item" data-tab="destekler">
+              <span class="sidebar-item-icon">3</span>
+              <span class="sidebar-item-label">Destek Başvuruları</span>
+              <span class="sidebar-item-count" data-count="destekler">0/0</span>
+            </button>
+            <button type="button" class="sidebar-item" data-tab="yillik">
+              <span class="sidebar-item-icon">4</span>
+              <span class="sidebar-item-label">Yıllık Yükümlülükler</span>
+              <span class="sidebar-item-count" data-count="yillik">0/0</span>
+            </button>
+          </nav>
+        </div>
+        <div class="sidebar-footer">
+          <a href="destekler-ozet.html" class="sidebar-link">Destekler ve kapsamları</a>
+        </div>
+      </aside>
 
-      <section id="on-sartlar" class="panel active">
-        <h2>1. Giliga Toys için ön şartlar</h2>
-        <p class="panel-desc">Giliga Toys’un oyuncaklarını e-ihracat destekleriyle dünyaya açmadan önce sağlamanız gereken temel koşullar.</p>
-        <ul class="todo-list" data-group="on-sartlar"></ul>
-      </section>
+      <main class="main">
+        <section id="on-sartlar" class="panel active">
+          <div class="panel-header">
+            <h2 class="panel-title">1. Ön Şartlar</h2>
+            <p class="panel-desc">E-ihracat desteklerine başvurmadan önce sağlamanız gereken temel koşullar.</p>
+          </div>
+          <div class="roadmap">
+            <ul class="todo-list roadmap-list" data-group="on-sartlar"></ul>
+          </div>
+        </section>
 
-      <section id="kapsama" class="panel">
-        <h2>2. Giliga Toys'un destek kapsamına alınması</h2>
-        <p class="panel-desc">Giliga Toys’un oyuncak ihracatı için hangi statüde (şirket / perakende e-ticaret / pazaryeri / B2B / konsorsiyum) kapsama alınacağını netleştirin.</p>
-        <ul class="todo-list" data-group="kapsama"></ul>
-      </section>
+        <section id="kapsama" class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">2. Kapsama Alınma</h2>
+            <p class="panel-desc">Statünüze göre destek kapsamına alınma başvurusu (şirket, perakende e-ticaret, pazaryeri, B2B veya konsorsiyum).</p>
+          </div>
+          <div class="roadmap">
+            <ul class="todo-list roadmap-list" data-group="kapsama"></ul>
+          </div>
+        </section>
 
-      <section id="destekler" class="panel">
-        <h2>3. Giliga Toys için yararlanıcı destek başvuru adımları</h2>
-        <p class="panel-desc">Her oyuncak seti için kullanabileceğiniz desteklerde temel akış: ön onay → harcama → ödeme başvurusu (belge tarihinden itibaren 6 ay içinde).</p>
-        <ul class="todo-list" data-group="destekler"></ul>
-      </section>
+        <section id="destekler" class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">3. Destek Başvuruları</h2>
+            <p class="panel-desc">Ön onay → harcama → ödeme başvurusu (belge tarihinden itibaren 6 ay içinde).</p>
+          </div>
+          <div class="roadmap">
+            <ul class="todo-list roadmap-list" data-group="destekler"></ul>
+          </div>
+        </section>
 
-      <section id="yillik" class="panel">
-        <h2>4. Giliga Toys için yıllık yükümlülükler</h2>
-        <p class="panel-desc">Giliga Toys’un her takvim yılı sonunda yerine getirmesi gereken E-İhracat Değerlendirme Beyanı ve olası ortaklık değişikliği bildirimleri.</p>
-        <ul class="todo-list" data-group="yillik"></ul>
-      </section>
-    </main>
+        <section id="yillik" class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">4. Yıllık Yükümlülükler</h2>
+            <p class="panel-desc">E-İhracat Değerlendirme Beyanı ve ortaklık değişikliği bildirimi.</p>
+          </div>
+          <div class="roadmap">
+            <ul class="todo-list roadmap-list" data-group="yillik"></ul>
+          </div>
+        </section>
+      </main>
+    </div>
 
     <footer class="footer">
-      <p>Bu sayfa Giliga Toys’un e-ihracat planlaması için hazırlanmıştır. Kaynak: T.C. Ticaret Bakanlığı — E-İhracat Destekleri Rehberi (Mayıs 2025). Esas metin 5986 sayılı Karar ve Genelge’dir.</p>
-      <p><a href="https://ticaret.gov.tr/destekler/e-ihracat-destekleri/genelge-ekleri" target="_blank" rel="noopener">Genelge ekleri (formlar)</a> · <a href="https://ticaret.gov.tr/destekler/ihracat-destekleri/kep-ve-e-imza-usulu-hakkinda" target="_blank" rel="noopener">KEP / e-imza</a></p>
+      <p>T.C. Ticaret Bakanlığı — E-İhracat Destekleri Rehberi (5986 sayılı Karar). <a href="https://ticaret.gov.tr/destekler/e-ihracat-destekleri/genelge-ekleri" target="_blank" rel="noopener">Genelge ekleri</a> · <a href="https://ticaret.gov.tr/destekler/ihracat-destekleri/kep-ve-e-imza-usulu-hakkinda" target="_blank" rel="noopener">KEP / e-imza</a></p>
     </footer>
   </div>
   <script src="data.js"></script>

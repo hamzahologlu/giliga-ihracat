@@ -1,6 +1,5 @@
 (function () {
   const STORAGE_KEY = "eihracat-destekleri-takip";
-  const CIRCLE_LENGTH = 339.292;
 
   function getState() {
     try {
@@ -34,23 +33,38 @@
     saveState(state);
   }
 
-  function renderProgress() {
-    let total = 0;
-    let completed = 0;
-    Object.values(window.EIHRACAT_TODO_DATA).forEach(function (items) {
+  function getCounts() {
+    const counts = {};
+    Object.keys(window.EIHRACAT_TODO_DATA || {}).forEach(function (groupId) {
+      const items = window.EIHRACAT_TODO_DATA[groupId];
+      let done = 0;
       items.forEach(function (item) {
-        total++;
-        if (state.done[item.id]) completed++;
+        if (state.done[item.id]) done++;
       });
+      counts[groupId] = { done: done, total: items.length };
+    });
+    return counts;
+  }
+
+  function renderProgress() {
+    const counts = getCounts();
+    let total = 0, completed = 0;
+    Object.values(counts).forEach(function (c) {
+      total += c.total;
+      completed += c.done;
     });
     const pct = total ? Math.round((completed / total) * 100) : 0;
     const el = document.getElementById("progressText");
-    const circle = document.getElementById("progressCircle");
     if (el) el.textContent = pct + "%";
-    if (circle) {
-      const offset = CIRCLE_LENGTH - (pct / 100) * CIRCLE_LENGTH;
-      circle.style.strokeDashoffset = String(offset);
-    }
+    updateSidebarCounts(counts);
+  }
+
+  function updateSidebarCounts(counts) {
+    Object.keys(counts || {}).forEach(function (groupId) {
+      const c = counts[groupId];
+      const span = document.querySelector('.sidebar-item-count[data-count="' + groupId + '"]');
+      if (span) span.textContent = c.done + "/" + c.total;
+    });
   }
 
   function renderList(groupId) {
@@ -60,12 +74,18 @@
     if (!items) return;
 
     list.innerHTML = items
-      .map(function (item) {
+      .map(function (item, index) {
+        const stepNum = index + 1;
         const done = state.done[item.id];
         const note = state.notes[item.id] || "";
         const date = state.dates[item.id] || "";
         return (
-          '<li class="todo-item' + (done ? " done" : "") + '" data-id="' + item.id + '">' +
+          '<li class="roadmap-step' + (done ? " done" : "") + '" data-id="' + item.id + '">' +
+          '<div class="roadmap-step-marker">' +
+          '<span class="roadmap-step-num">' + stepNum + '</span>' +
+          '</div>' +
+          '<div class="roadmap-step-content">' +
+          '<div class="todo-item">' +
           '<span class="todo-check" role="button" tabindex="0" aria-label="Tamamla">' +
           (done ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg>' : "") +
           "</span>" +
@@ -82,19 +102,19 @@
           '<button type="button" class="date-btn" aria-label="Tarih">Tarih</button>' +
           "</div>" +
           "</div>" +
-          "</li>"
+          "</div></div></li>"
         );
       })
       .join("");
 
     list.querySelectorAll(".todo-check").forEach(function (btn) {
       btn.addEventListener("click", function () {
-        const item = btn.closest(".todo-item");
-        const id = item.getAttribute("data-id");
+        const step = btn.closest(".roadmap-step");
+        const id = step.getAttribute("data-id");
         const next = !state.done[id];
         state.done[id] = next;
         persistDone(id, next);
-        item.classList.toggle("done", next);
+        step.classList.toggle("done", next);
         btn.innerHTML = next ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg>' : "";
         renderProgress();
       });
@@ -102,7 +122,7 @@
 
     list.querySelectorAll(".note-btn").forEach(function (btn) {
       btn.addEventListener("click", function () {
-        const item = btn.closest(".todo-item");
+        const item = btn.closest(".roadmap-step");
         const id = item.getAttribute("data-id");
         const meta = item.querySelector(".todo-meta");
         const noteField = meta.querySelector(".note-field");
@@ -131,7 +151,7 @@
 
     list.querySelectorAll(".date-btn").forEach(function (btn) {
       btn.addEventListener("click", function () {
-        const item = btn.closest(".todo-item");
+        const item = btn.closest(".roadmap-step");
         const id = item.getAttribute("data-id");
         const current = state.dates[id] || "";
         const newDate = window.prompt("Tamamlanma veya hedef tarih (örn: 15.02.2025):", current);
@@ -153,7 +173,7 @@
 
     list.querySelectorAll(".note-field textarea").forEach(function (ta) {
       ta.addEventListener("blur", function () {
-        const item = ta.closest(".todo-item");
+        const item = ta.closest(".roadmap-step");
         const id = item.getAttribute("data-id");
         const val = ta.value.trim();
         persistNote(id, val);
@@ -161,7 +181,7 @@
         const noteSpan = meta.querySelector(".todo-note");
         if (noteSpan) noteSpan.textContent = val;
         ta.parentElement.style.display = "none";
-        item.querySelector(".note-btn").classList.remove("active");
+        if (item) item.querySelector(".note-btn").classList.remove("active");
       });
     });
   }
@@ -172,10 +192,10 @@
     return div.innerHTML;
   }
 
-  document.querySelectorAll(".tab").forEach(function (tab) {
-    tab.addEventListener("click", function () {
-      const t = tab.getAttribute("data-tab");
-      document.querySelectorAll(".tab").forEach(function (x) {
+  document.querySelectorAll(".sidebar-item").forEach(function (item) {
+    item.addEventListener("click", function () {
+      const t = item.getAttribute("data-tab");
+      document.querySelectorAll(".sidebar-item").forEach(function (x) {
         x.classList.toggle("active", x.getAttribute("data-tab") === t);
       });
       document.querySelectorAll(".panel").forEach(function (p) {

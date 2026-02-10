@@ -1,19 +1,22 @@
-/* Apple-inspired: sade, ferah, göz yormayan */
+/* Slack-style iş takip + yol haritası */
 
 :root {
-  --bg: #fbfbfd;
+  --slack-sidebar: #3f0e40;
+  --slack-sidebar-hover: #4a154b;
+  --slack-sidebar-active: #1164a3;
+  --slack-sidebar-text: #ffffff;
+  --slack-sidebar-muted: rgba(255, 255, 255, 0.7);
+  --bg: #f8f8f8;
   --surface: #ffffff;
-  --surface2: #f5f5f7;
-  --border: rgba(0, 0, 0, 0.06);
-  --text: #1d1d1f;
-  --text-muted: #6e6e73;
-  --accent: #0071e3;
-  --accent-hover: #0077ed;
-  --success: #34c759;
-  --success-bg: rgba(52, 199, 89, 0.08);
-  --radius: 12px;
-  --radius-sm: 8px;
-  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  --border: #e8e8e8;
+  --text: #1d1c1d;
+  --text-muted: #616061;
+  --accent: #1264a3;
+  --success: #2eb886;
+  --success-bg: rgba(46, 184, 134, 0.08);
+  --radius: 8px;
+  --radius-sm: 6px;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 * {
@@ -25,211 +28,312 @@ body {
   font-family: var(--font-sans);
   background: var(--bg);
   color: var(--text);
-  line-height: 1.47;
-  font-size: 17px;
+  line-height: 1.5;
+  font-size: 15px;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
 }
 
 .app {
-  max-width: none;
-  margin: 0;
-  padding: 0;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
-/* Header — minimal */
+/* Header — Slack üst bar */
 .header {
-  padding: 16px 40px;
-  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
   background: var(--surface);
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+  border-bottom: 1px solid var(--border);
 }
 
-.header-inner {
+.header-brand {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  align-items: baseline;
+  gap: 10px;
 }
 
 .logo {
-  font-size: 1.75rem;
-  font-weight: 600;
+  font-size: 1.25rem;
+  font-weight: 700;
   margin: 0;
   color: var(--text);
-  letter-spacing: -0.025em;
 }
 
-.tagline {
-  margin: 0;
-  font-size: 15px;
+.logo-sub {
+  font-size: 14px;
   color: var(--text-muted);
   font-weight: 400;
 }
 
-.back-link {
-  margin: 16px 0 0;
-  font-size: 15px;
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
-.back-link a {
+.progress-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--bg);
+  border-radius: 20px;
+  font-size: 13px;
+}
+
+.progress-label {
+  color: var(--text-muted);
+}
+
+.progress-value {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.header-link {
+  font-size: 14px;
   color: var(--accent);
   text-decoration: none;
 }
 
-.back-link a:hover {
+.header-link:hover {
   text-decoration: underline;
 }
 
-/* Ana içerik alanı */
-.main {
+/* Layout: sidebar + main */
+.layout {
+  display: flex;
   flex: 1;
-  padding: 32px 40px 56px;
+  min-height: 0;
 }
 
-/* Progress — sade daire */
-.progress-ring-wrap {
-  position: relative;
-  width: 72px;
-  height: 72px;
-  margin-top: 28px;
+/* Sidebar — Slack kanal listesi */
+.sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  background: var(--slack-sidebar);
+  display: flex;
+  flex-direction: column;
 }
 
-.progress-ring {
+.sidebar-section {
+  padding: 16px 0;
+}
+
+.sidebar-section-title {
+  padding: 0 20px 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--slack-sidebar-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   width: 100%;
-  height: 100%;
-  transform: rotate(-90deg);
+  padding: 10px 20px;
+  border: none;
+  background: transparent;
+  color: var(--slack-sidebar-text);
+  font-size: 15px;
+  font-family: var(--font-sans);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s;
 }
 
-.progress-ring-bg {
-  fill: none;
-  stroke: var(--surface2);
-  stroke-width: 5;
+.sidebar-item:hover {
+  background: var(--slack-sidebar-hover);
 }
 
-.progress-ring-fill {
-  fill: none;
-  stroke: var(--accent);
-  stroke-width: 5;
-  stroke-linecap: round;
-  stroke-dasharray: 339.292;
-  stroke-dashoffset: 339.292;
-  transition: stroke-dashoffset 0.35s ease;
+.sidebar-item.active {
+  background: var(--slack-sidebar-active);
+  color: var(--slack-sidebar-text);
 }
 
-.progress-text {
-  position: absolute;
-  inset: 0;
+.sidebar-item-icon {
+  width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  font-size: 12px;
   font-weight: 600;
-  color: var(--text-muted);
 }
 
-/* Tabs — segmented control tarzı */
-.nav-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0;
-  padding: 32px 0 24px;
-  border-bottom: none;
+.sidebar-item.active .sidebar-item-icon {
+  background: rgba(255, 255, 255, 0.25);
 }
 
-.tab {
-  font-family: var(--font-sans);
-  font-size: 15px;
-  font-weight: 500;
-  padding: 10px 16px;
-  border: 1px solid var(--border);
-  border-radius: 0;
-  background: var(--surface);
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-  margin-right: -1px;
+.sidebar-item-label {
+  flex: 1;
+  min-width: 0;
 }
 
-.tab:first-of-type {
-  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+.sidebar-item-count {
+  font-size: 12px;
+  color: var(--slack-sidebar-muted);
 }
 
-.tab:last-of-type {
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-  margin-right: 0;
+.sidebar-item.active .sidebar-item-count {
+  color: rgba(255, 255, 255, 0.85);
 }
 
-.tab:hover {
-  background: var(--surface2);
-  color: var(--text);
+.sidebar-footer {
+  margin-top: auto;
+  padding: 16px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.tab.active {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #ffffff;
+.sidebar-link {
+  font-size: 13px;
+  color: var(--slack-sidebar-muted);
+  text-decoration: none;
 }
 
-/* Panels */
+.sidebar-link:hover {
+  color: var(--slack-sidebar-text);
+  text-decoration: underline;
+}
+
+/* Main — yol haritası içeriği */
+.main {
+  flex: 1;
+  overflow: auto;
+  padding: 32px 40px 48px;
+  background: var(--bg);
+}
+
 .panel {
   display: none;
-  padding: 16px 0 56px;
+  max-width: 720px;
 }
 
 .panel.active {
   display: block;
 }
 
-.panel h2 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin: 0 0 6px;
+.panel-header {
+  margin-bottom: 28px;
+}
+
+.panel-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 8px;
   color: var(--text);
-  letter-spacing: -0.02em;
 }
 
 .panel-desc {
-  margin: 0 0 24px;
   font-size: 15px;
   color: var(--text-muted);
+  margin: 0;
   line-height: 1.5;
 }
 
-/* Todo list — sade kartlar */
-.todo-list {
+/* Yol haritası — adım adım timeline */
+.roadmap {
+  position: relative;
+}
+
+.roadmap-list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 0;
 }
 
-.todo-item {
+.roadmap-step {
+  display: flex;
+  gap: 0;
+  position: relative;
+}
+
+.roadmap-step-marker {
+  flex-shrink: 0;
+  width: 48px;
+  padding-top: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.roadmap-step-num {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.roadmap-step.done .roadmap-step-num {
+  background: var(--success);
+  border-color: var(--success);
+  color: var(--surface);
+}
+
+.roadmap-step:not(:last-child) .roadmap-step-marker::after {
+  content: "";
+  position: absolute;
+  left: 23px;
+  top: 52px;
+  bottom: -12px;
+  width: 2px;
+  background: var(--border);
+}
+
+.roadmap-step-content {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 0 24px;
+  display: flex;
+}
+
+.roadmap-step-content .todo-item {
+  flex: 1;
   display: flex;
   align-items: flex-start;
   gap: 14px;
-  padding: 18px 20px;
+  padding: 16px 20px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  transition: background 0.2s, border-color 0.2s;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
-.todo-item:hover {
-  background: var(--surface);
-  border-color: rgba(0, 0, 0, 0.08);
+.roadmap-step-content .todo-item:hover {
+  border-color: #d0d0d0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
-.todo-item.done {
+.roadmap-step.done .roadmap-step-content .todo-item {
   background: var(--success-bg);
-  border-color: rgba(52, 199, 89, 0.2);
+  border-color: rgba(46, 184, 134, 0.3);
 }
 
-.todo-item.done .todo-title {
+.roadmap-step.done .todo-title {
   color: var(--text-muted);
   text-decoration: line-through;
 }
@@ -238,7 +342,7 @@ body {
   flex-shrink: 0;
   width: 22px;
   height: 22px;
-  margin-top: 1px;
+  margin-top: 2px;
   border: 2px solid var(--border);
   border-radius: 50%;
   background: var(--surface);
@@ -249,7 +353,7 @@ body {
   transition: border-color 0.2s, background 0.2s;
 }
 
-.todo-item.done .todo-check {
+.roadmap-step.done .todo-check {
   background: var(--success);
   border-color: var(--success);
   color: var(--surface);
@@ -261,7 +365,7 @@ body {
 }
 
 .todo-check:hover {
-  border-color: var(--text-muted);
+  border-color: var(--accent);
 }
 
 .todo-body {
@@ -270,9 +374,9 @@ body {
 }
 
 .todo-title {
-  font-size: 16px;
-  font-weight: 500;
-  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 6px;
   color: var(--text);
 }
 
@@ -287,15 +391,13 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-top: 8px;
+  margin-top: 10px;
   flex-wrap: wrap;
 }
 
 .todo-note {
   font-size: 13px;
   color: var(--text-muted);
-  font-style: normal;
-  max-width: 100%;
 }
 
 .todo-date {
@@ -312,17 +414,17 @@ body {
 .todo-actions button {
   font-family: var(--font-sans);
   font-size: 13px;
-  padding: 6px 12px;
+  padding: 5px 10px;
   border: none;
   border-radius: var(--radius-sm);
-  background: var(--surface2);
+  background: var(--bg);
   color: var(--text-muted);
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
 }
 
 .todo-actions button:hover {
-  background: rgba(0, 0, 0, 0.08);
+  background: var(--border);
   color: var(--text);
 }
 
@@ -331,18 +433,41 @@ body {
   color: var(--surface);
 }
 
-/* Footer — minimal */
-.footer {
-  padding: 24px 40px;
-  border-top: 1px solid var(--border);
+.note-field {
+  margin-top: 8px;
+  width: 100%;
+}
+
+.note-field textarea {
+  width: 100%;
+  min-height: 60px;
+  padding: 10px 12px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
   background: var(--surface);
+  color: var(--text);
+  resize: vertical;
+}
+
+.note-field textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* Footer */
+.footer {
+  padding: 16px 24px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
   font-size: 13px;
   color: var(--text-muted);
   line-height: 1.5;
 }
 
 .footer p {
-  margin: 0 0 6px;
+  margin: 0;
 }
 
 .footer a {
@@ -354,85 +479,84 @@ body {
   text-decoration: underline;
 }
 
-/* Note textarea */
-.note-field {
-  margin-top: 8px;
-  width: 100%;
-}
-
-.note-field textarea {
-  width: 100%;
-  min-height: 64px;
-  padding: 12px 14px;
-  font-family: var(--font-sans);
-  font-size: 15px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--surface);
-  color: var(--text);
-  resize: vertical;
-}
-
-.note-field textarea::placeholder {
-  color: var(--text-muted);
-}
-
-.note-field textarea:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
-}
-
-@media (max-width: 600px) {
-  .logo {
-    font-size: 1.5rem;
+/* Responsive */
+@media (max-width: 768px) {
+  .layout {
+    flex-direction: column;
   }
 
-  .nav-tabs {
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 8px;
     gap: 4px;
   }
 
-  .tab {
+  .sidebar-section {
+    padding: 0;
+    width: 100%;
+  }
+
+  .sidebar-section-title {
+    display: none;
+  }
+
+  .sidebar-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .sidebar-item {
+    padding: 8px 12px;
+    font-size: 13px;
     flex: 1;
     min-width: 0;
-    padding: 10px 8px;
-    font-size: 13px;
   }
 
-  .tab:first-of-type {
-    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  .sidebar-item-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 11px;
   }
 
-  .tab:nth-of-type(2) {
-    border-radius: 0;
+  .sidebar-item-count {
+    display: none;
   }
 
-  .tab:nth-of-type(3) {
-    border-radius: 0;
-  }
-
-  .tab:last-of-type {
-    border-radius: 0 0 var(--radius-sm) var(--radius-sm);
-  }
-
-  .header {
-    padding: 12px 16px;
+  .sidebar-footer {
+    margin-top: 0;
+    width: 100%;
+    padding: 8px 12px;
+    border-top: none;
   }
 
   .main {
-    padding: 24px 16px 40px;
+    padding: 20px 16px 32px;
   }
 
-  .footer {
-    padding: 20px 16px;
+  .roadmap-step-marker {
+    width: 40px;
   }
 
-  .todo-item {
+  .roadmap-step-num {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+
+  .roadmap-step:not(:last-child) .roadmap-step-marker::after {
+    left: 19px;
+  }
+
+  .header {
     flex-wrap: wrap;
+    gap: 8px;
   }
 
-  .todo-actions {
+  .header-actions {
     width: 100%;
-    justify-content: flex-end;
+    justify-content: flex-start;
   }
 }
