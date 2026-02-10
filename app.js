@@ -332,6 +332,7 @@
 
   function initAuth() {
     var authWrap = document.getElementById("authWrap");
+    var authBtn = document.getElementById("authBtn");
     var authUser = document.getElementById("authUser");
     var authLogout = document.getElementById("authLogout");
     var loginScreen = document.getElementById("loginScreen");
@@ -353,9 +354,11 @@
     function setAuthUI(user) {
       if (authWrap) {
         if (user) {
+          if (authBtn) authBtn.style.display = "none";
           if (authUser) { authUser.style.display = ""; authUser.textContent = user.email || "Hesap"; }
           if (authLogout) authLogout.style.display = "";
         } else {
+          if (authBtn) authBtn.style.display = "";
           if (authUser) authUser.style.display = "none";
           if (authLogout) authLogout.style.display = "none";
         }
