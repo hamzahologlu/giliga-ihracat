@@ -469,6 +469,23 @@ body {
   border-color: var(--accent);
 }
 
+.note-save-btn {
+  margin-top: 8px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  padding: 6px 14px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: var(--surface);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.note-save-btn:hover {
+  filter: brightness(1.05);
+}
+
 /* Login ekranı — ilk açılış */
 .login-screen {
   position: fixed;

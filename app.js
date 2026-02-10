@@ -174,7 +174,7 @@
           (deadline ? '<span class="todo-deadline">Termin: ' + escapeHtml(deadline) + "</span>" : "") +
           (date ? '<span class="todo-date">' + escapeHtml(date) + "</span>" : "") +
           (note ? '<span class="todo-note">' + escapeHtml(note) + "</span>" : "") +
-          '<div class="note-field" style="display:none"><textarea placeholder="Not ekle..." rows="2"></textarea></div>' +
+          '<div class="note-field" style="display:none"><textarea placeholder="Not ekle..." rows="2"></textarea><button type="button" class="note-save-btn">Kaydet</button></div>' +
           '</div>' +
           '<div class="todo-actions">' +
           '<button type="button" class="assignee-btn" aria-label="Sorumlu">Sorumlu</button>' +
@@ -296,6 +296,31 @@
       });
     });
 
+    list.querySelectorAll(".note-save-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var noteField = btn.closest(".note-field");
+        var item = btn.closest(".roadmap-step");
+        var id = item.getAttribute("data-id");
+        var meta = item.querySelector(".todo-meta");
+        var textarea = noteField.querySelector("textarea");
+        var val = textarea ? textarea.value.trim() : "";
+        persistNote(id, val);
+        var noteSpan = meta.querySelector(".todo-note");
+        if (val) {
+          if (noteSpan) noteSpan.textContent = val;
+          else {
+            noteSpan = document.createElement("span");
+            noteSpan.className = "todo-note";
+            noteSpan.textContent = val;
+            meta.insertBefore(noteSpan, noteField);
+          }
+        } else if (noteSpan) noteSpan.remove();
+        noteField.style.display = "none";
+        var noteBtn = item.querySelector(".note-btn");
+        if (noteBtn) noteBtn.classList.remove("active");
+      });
+    });
+
     list.querySelectorAll(".note-field textarea").forEach(function (ta) {
       ta.addEventListener("blur", function () {
         const item = ta.closest(".roadmap-step");
@@ -303,10 +328,22 @@
         const val = ta.value.trim();
         persistNote(id, val);
         const meta = item.querySelector(".todo-meta");
-        const noteSpan = meta.querySelector(".todo-note");
-        if (noteSpan) noteSpan.textContent = val;
-        ta.parentElement.style.display = "none";
-        if (item) item.querySelector(".note-btn").classList.remove("active");
+        let noteSpan = meta.querySelector(".todo-note");
+        if (val) {
+          if (noteSpan) noteSpan.textContent = val;
+          else {
+            noteSpan = document.createElement("span");
+            noteSpan.className = "todo-note";
+            noteSpan.textContent = val;
+            meta.insertBefore(noteSpan, meta.querySelector(".note-field"));
+          }
+        } else if (noteSpan) noteSpan.remove();
+        var noteField = ta.parentElement;
+        var noteBtn = item ? item.querySelector(".note-btn") : null;
+        setTimeout(function () {
+          noteField.style.display = "none";
+          if (noteBtn) noteBtn.classList.remove("active");
+        }, 150);
       });
     });
   }
