@@ -14,7 +14,9 @@ T.C. Ticaret Bakanlığı **E-İhracat Destekleri Rehberi (Mayıs 2025)** ve **5
 
 4. **Not ve tarih:** “Not” ile o maddeye özel not ekleyin, “Tarih” ile hedef veya tamamlanma tarihi yazın (örn: 15.02.2025).
 
-5. **Kayıt:** Tüm işaretler, notlar ve tarihler tarayıcınızın yerel depolamasında (localStorage) saklanır; sayfayı kapatsanız bile kalır.
+5. **Sorumlu ve termin:** "Sorumlu" ile görevi üstlenecek kişiyi atayın, "Termin" ile bitiş tarihi (termin süresi) girin.
+
+6. **Kayıt:** Tüm işaretler, notlar, tarihler, sorumlular ve terminler tarayıcınızın yerel depolamasında (localStorage) saklanır; sayfayı kapatsanız bile kalır.
 
 ## İçerik kaynağı
 

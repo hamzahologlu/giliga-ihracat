@@ -405,6 +405,17 @@ body {
   color: var(--accent);
 }
 
+.todo-assignee {
+  font-size: 13px;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.todo-deadline {
+  font-size: 13px;
+  color: var(--warning, #d97706);
+}
+
 .todo-actions {
   flex-shrink: 0;
   display: flex;
@@ -428,7 +439,9 @@ body {
   color: var(--text);
 }
 
-.todo-actions button.note-btn.active {
+.todo-actions button.note-btn.active,
+.todo-actions button.assignee-btn.active,
+.todo-actions button.deadline-btn.active {
   background: var(--accent);
   color: var(--surface);
 }

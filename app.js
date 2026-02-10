@@ -4,9 +4,18 @@
   function getState() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : { done: {}, notes: {}, dates: {} };
+      const base = { done: {}, notes: {}, dates: {}, assignees: {}, deadlines: {} };
+      if (!raw) return base;
+      const parsed = JSON.parse(raw);
+      return {
+        done: parsed.done || {},
+        notes: parsed.notes || {},
+        dates: parsed.dates || {},
+        assignees: parsed.assignees || {},
+        deadlines: parsed.deadlines || {}
+      };
     } catch (_) {
-      return { done: {}, notes: {}, dates: {} };
+      return { done: {}, notes: {}, dates: {}, assignees: {}, deadlines: {} };
     }
   }
 
@@ -30,6 +39,16 @@
 
   function persistDate(id, date) {
     if (date) state.dates[id] = date; else delete state.dates[id];
+    saveState(state);
+  }
+
+  function persistAssignee(id, name) {
+    if (name) state.assignees[id] = name; else delete state.assignees[id];
+    saveState(state);
+  }
+
+  function persistDeadline(id, date) {
+    if (date) state.deadlines[id] = date; else delete state.deadlines[id];
     saveState(state);
   }
 
@@ -79,6 +98,8 @@
         const done = state.done[item.id];
         const note = state.notes[item.id] || "";
         const date = state.dates[item.id] || "";
+        const assignee = state.assignees[item.id] || "";
+        const deadline = state.deadlines[item.id] || "";
         return (
           '<li class="roadmap-step' + (done ? " done" : "") + '" data-id="' + item.id + '">' +
           '<div class="roadmap-step-marker">' +
@@ -93,11 +114,15 @@
           '<p class="todo-title">' + escapeHtml(item.title) + "</p>" +
           (item.detail ? '<p class="todo-detail">' + escapeHtml(item.detail) + "</p>" : "") +
           '<div class="todo-meta">' +
+          (assignee ? '<span class="todo-assignee">Sorumlu: ' + escapeHtml(assignee) + "</span>" : "") +
+          (deadline ? '<span class="todo-deadline">Termin: ' + escapeHtml(deadline) + "</span>" : "") +
           (date ? '<span class="todo-date">' + escapeHtml(date) + "</span>" : "") +
           (note ? '<span class="todo-note">' + escapeHtml(note) + "</span>" : "") +
           '<div class="note-field" style="display:none"><textarea placeholder="Not ekle..." rows="2"></textarea></div>' +
           '</div>' +
           '<div class="todo-actions">' +
+          '<button type="button" class="assignee-btn" aria-label="Sorumlu">Sorumlu</button>' +
+          '<button type="button" class="deadline-btn" aria-label="Termin">Termin</button>' +
           '<button type="button" class="note-btn" aria-label="Not">Not</button>' +
           '<button type="button" class="date-btn" aria-label="Tarih">Tarih</button>' +
           "</div>" +
@@ -168,6 +193,50 @@
           }
           dateEl.textContent = trimmed;
         } else if (dateEl) dateEl.remove();
+      });
+    });
+
+    list.querySelectorAll(".assignee-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        const item = btn.closest(".roadmap-step");
+        const id = item.getAttribute("data-id");
+        const current = state.assignees[id] || "";
+        const name = window.prompt("Sorumlu kişi adı:", current);
+        if (name === null) return;
+        const trimmed = name.trim();
+        persistAssignee(id, trimmed);
+        const meta = item.querySelector(".todo-meta");
+        let assigneeEl = meta.querySelector(".todo-assignee");
+        if (trimmed) {
+          if (!assigneeEl) {
+            assigneeEl = document.createElement("span");
+            assigneeEl.className = "todo-assignee";
+            meta.insertBefore(assigneeEl, meta.firstChild);
+          }
+          assigneeEl.textContent = "Sorumlu: " + trimmed;
+        } else if (assigneeEl) assigneeEl.remove();
+      });
+    });
+
+    list.querySelectorAll(".deadline-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        const item = btn.closest(".roadmap-step");
+        const id = item.getAttribute("data-id");
+        const current = state.deadlines[id] || "";
+        const newDeadline = window.prompt("Termin tarihi (örn: 15.03.2025):", current);
+        if (newDeadline === null) return;
+        const trimmed = newDeadline.trim();
+        persistDeadline(id, trimmed);
+        const meta = item.querySelector(".todo-meta");
+        let deadlineEl = meta.querySelector(".todo-deadline");
+        if (trimmed) {
+          if (!deadlineEl) {
+            deadlineEl = document.createElement("span");
+            deadlineEl.className = "todo-deadline";
+            meta.insertBefore(deadlineEl, meta.firstChild);
+          }
+          deadlineEl.textContent = "Termin: " + trimmed;
+        } else if (deadlineEl) deadlineEl.remove();
       });
     });
 
