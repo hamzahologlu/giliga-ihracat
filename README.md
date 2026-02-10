@@ -16,7 +16,7 @@ T.C. Ticaret Bakanlığı **E-İhracat Destekleri Rehberi (Mayıs 2025)** ve **5
 
 5. **Sorumlu ve termin:** "Sorumlu" ile görevi üstlenecek kişiyi atayın, "Termin" ile bitiş tarihi (termin süresi) girin.
 
-6. **Kayıt:** Tüm işaretler, notlar, tarihler, sorumlular ve terminler tarayıcınızın yerel depolamasında (localStorage) saklanır; sayfayı kapatsanız bile kalır.
+6. **Kayıt:** Veriler tarayıcıda (localStorage) saklanır. **Farklı cihazlarda aynı verileri görmek** için "Giriş yap" ile hesap oluşturup giriş yapın; veriler Supabase ile cihazlar arası senkronize edilir. Kurulum: [SUPABASE-SETUP.md](SUPABASE-SETUP.md).
 
 ## İçerik kaynağı
 

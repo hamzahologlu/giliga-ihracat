@@ -1,5 +1,8 @@
 (function () {
   const STORAGE_KEY = "eihracat-destekleri-takip";
+  var supabase = null;
+  var saveToCloudTimer = null;
+  var authMode = "signin"; // "signin" | "signup"
 
   function getState() {
     try {
@@ -23,6 +26,59 @@
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     } catch (_) {}
+    scheduleSaveToCloud();
+  }
+
+  if (window.SUPABASE_URL && window.SUPABASE_ANON_KEY &&
+      window.SUPABASE_URL.indexOf("PROJE_ID") === -1 && window.SUPABASE_ANON_KEY.indexOf("anon-key-buraya") === -1 &&
+      window.supabase && typeof window.supabase.createClient === "function") {
+    try {
+      supabase = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+    } catch (_) {}
+  }
+
+  function scheduleSaveToCloud() {
+    if (!supabase) return;
+    if (saveToCloudTimer) clearTimeout(saveToCloudTimer);
+    saveToCloudTimer = setTimeout(function () {
+      saveToCloudTimer = null;
+      saveToCloud();
+    }, 800);
+  }
+
+  function saveToCloud() {
+    if (!supabase) return;
+    supabase.auth.getUser().then(function (r) {
+      if (!r.data || !r.data.user) return;
+      var payload = {
+        user_id: r.data.user.id,
+        data: {
+          done: state.done,
+          notes: state.notes,
+          dates: state.dates,
+          assignees: state.assignees,
+          deadlines: state.deadlines
+        },
+        updated_at: new Date().toISOString()
+      };
+      supabase.from("takip_data").upsert(payload, { onConflict: "user_id" }).then(function () {}, function () {});
+    });
+  }
+
+  function replaceState(data) {
+    var base = { done: {}, notes: {}, dates: {}, assignees: {}, deadlines: {} };
+    state.done = data && data.done ? data.done : base.done;
+    state.notes = data && data.notes ? data.notes : base.notes;
+    state.dates = data && data.dates ? data.dates : base.dates;
+    state.assignees = data && data.assignees ? data.assignees : base.assignees;
+    state.deadlines = data && data.deadlines ? data.deadlines : base.deadlines;
+    saveState(state);
+    fullRefresh();
+  }
+
+  function fullRefresh() {
+    ["on-sartlar", "kapsama", "destekler", "yillik"].forEach(renderList);
+    renderProgress();
   }
 
   const state = getState();
@@ -274,6 +330,111 @@
     });
   });
 
+  function initAuth() {
+    var authWrap = document.getElementById("authWrap");
+    var authBtn = document.getElementById("authBtn");
+    var authUser = document.getElementById("authUser");
+    var authLogout = document.getElementById("authLogout");
+    var authModal = document.getElementById("authModal");
+    var authForm = document.getElementById("authForm");
+    var authEmail = document.getElementById("authEmail");
+    var authPassword = document.getElementById("authPassword");
+    var authError = document.getElementById("authError");
+    var authSubmit = document.getElementById("authSubmit");
+    var authSwitch = document.getElementById("authSwitch");
+    if (!authWrap || !supabase) return;
+    authWrap.style.display = "";
+
+    function setAuthUI(user) {
+      if (user) {
+        authBtn.style.display = "none";
+        authUser.style.display = "";
+        authUser.textContent = user.email || "Hesap";
+        authLogout.style.display = "";
+      } else {
+        authBtn.style.display = "";
+        authUser.style.display = "none";
+        authLogout.style.display = "none";
+      }
+    }
+
+    function showError(msg) {
+      authError.textContent = msg || "";
+      authError.style.display = msg ? "block" : "none";
+    }
+
+    function closeModal() {
+      if (authModal) authModal.style.display = "none";
+      showError("");
+    }
+
+    function fetchAndReplaceState(userId) {
+      supabase.from("takip_data").select("data").eq("user_id", userId).maybeSingle().then(function (res) {
+        if (res.data && res.data.data) replaceState(res.data.data);
+      });
+    }
+
+    supabase.auth.onAuthStateChange(function (event, session) {
+      setAuthUI(session ? session.user : null);
+      if (session && session.user) fetchAndReplaceState(session.user.id);
+    });
+
+    supabase.auth.getSession().then(function (r) {
+      if (r.data && r.data.session) {
+        setAuthUI(r.data.session.user);
+        fetchAndReplaceState(r.data.session.user.id);
+      } else {
+        setAuthUI(null);
+      }
+    });
+
+    authBtn.addEventListener("click", function () {
+      authMode = "signin";
+      authSubmit.textContent = "Giriş yap";
+      authSwitch.textContent = "Kayıt ol";
+      authModal.style.display = "flex";
+      authForm.reset();
+      showError("");
+    });
+
+    authForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var email = (authEmail.value || "").trim();
+      var password = authPassword.value || "";
+      showError("");
+      if (authMode === "signup") {
+        supabase.auth.signUp({ email: email, password: password }).then(function (r) {
+          if (r.error) showError(r.error.message || "Kayıt başarısız.");
+          else { showError("Kayıt tamam. E-posta onayı gerekebilir; giriş yapın."); closeModal(); }
+        });
+      } else {
+        supabase.auth.signInWithPassword({ email: email, password: password }).then(function (r) {
+          if (r.error) showError(r.error.message || "Giriş başarısız.");
+          else closeModal();
+        });
+      }
+    });
+
+    authSwitch.addEventListener("click", function () {
+      authMode = authMode === "signin" ? "signup" : "signin";
+      authSubmit.textContent = authMode === "signin" ? "Giriş yap" : "Kayıt ol";
+      authSwitch.textContent = authMode === "signin" ? "Kayıt ol" : "Giriş yap";
+      showError("");
+    });
+
+    authLogout.addEventListener("click", function () {
+      supabase.auth.signOut();
+    });
+
+    if (document.getElementById("authModalClose")) {
+      document.getElementById("authModalClose").addEventListener("click", closeModal);
+    }
+    if (authModal) {
+      authModal.querySelector(".auth-modal-backdrop").addEventListener("click", closeModal);
+    }
+  }
+
   ["on-sartlar", "kapsama", "destekler", "yillik"].forEach(renderList);
   renderProgress();
+  if (supabase) initAuth();
 })();

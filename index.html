@@ -18,6 +18,11 @@
           <span class="progress-label">İlerleme</span>
           <span class="progress-value" id="progressText">0%</span>
         </div>
+        <div id="authWrap" class="auth-wrap" style="display:none">
+          <button type="button" id="authBtn" class="auth-btn">Giriş yap</button>
+          <span id="authUser" class="auth-user" style="display:none"></span>
+          <button type="button" id="authLogout" class="auth-btn auth-btn-outline" style="display:none">Çıkış</button>
+        </div>
         <a href="destekler-ozet.html" class="header-link">Destekler özeti</a>
       </div>
     </header>
@@ -101,7 +106,30 @@
       <p>T.C. Ticaret Bakanlığı — E-İhracat Destekleri Rehberi (5986 sayılı Karar). <a href="https://ticaret.gov.tr/destekler/e-ihracat-destekleri/genelge-ekleri" target="_blank" rel="noopener">Genelge ekleri</a> · <a href="https://ticaret.gov.tr/destekler/ihracat-destekleri/kep-ve-e-imza-usulu-hakkinda" target="_blank" rel="noopener">KEP / e-imza</a></p>
     </footer>
   </div>
+
+  <div id="authModal" class="auth-modal" role="dialog" aria-label="Giriş" style="display:none">
+    <div class="auth-modal-backdrop"></div>
+    <div class="auth-modal-box">
+      <h3 class="auth-modal-title">Cihazlar arası senkronizasyon</h3>
+      <p class="auth-modal-desc">Aynı hesapla giriş yaptığınız her cihazda verileriniz görünür.</p>
+      <form id="authForm" class="auth-form">
+        <input type="email" id="authEmail" class="auth-input" placeholder="E-posta" required autocomplete="email" />
+        <input type="password" id="authPassword" class="auth-input" placeholder="Şifre" required autocomplete="current-password" />
+        <div id="authError" class="auth-error" style="display:none"></div>
+        <div class="auth-form-actions">
+          <button type="submit" id="authSubmit" class="auth-btn auth-btn-primary">Giriş yap</button>
+          <button type="button" id="authSwitch" class="auth-btn auth-btn-outline">Kayıt ol</button>
+        </div>
+      </form>
+      <button type="button" id="authModalClose" class="auth-modal-close" aria-label="Kapat">&times;</button>
+    </div>
+  </div>
+
   <script src="data.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script>window.SUPABASE_URL=window.SUPABASE_URL||'';window.SUPABASE_ANON_KEY=window.SUPABASE_ANON_KEY||'';</script>
+  <script src="supabase-config.js"></script>
+  <script>window.SUPABASE_URL=window.SUPABASE_URL||'';window.SUPABASE_ANON_KEY=window.SUPABASE_ANON_KEY||'';</script>
   <script src="app.js"></script>
 </body>
 </html>
