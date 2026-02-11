@@ -814,6 +814,212 @@ body {
   flex: 1;
 }
 
+/* Picker overlay — tarih, sorumlu, etiket, öncelik */
+.picker-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(2px);
+}
+
+.picker-popover {
+  position: fixed;
+  min-width: 280px;
+  max-width: 340px;
+  padding: 0;
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+  border: 1px solid var(--border);
+}
+
+.picker-popover-above {
+  align-self: flex-end;
+}
+
+.picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.picker-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.picker-close {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+
+.picker-close:hover {
+  background: var(--border);
+  color: var(--text);
+}
+
+.picker-content {
+  padding: 14px;
+}
+
+.picker-label {
+  display: block;
+  width: 100%;
+}
+
+.picker-date-input,
+.picker-text-input {
+  width: 100%;
+  padding: 10px 12px;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.picker-date-input:focus,
+.picker-text-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.picker-actions {
+  display: flex;
+  gap: 10px;
+  padding: 12px 14px;
+  border-top: 1px solid var(--border);
+  justify-content: flex-end;
+}
+
+.picker-btn {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.picker-btn:hover {
+  background: var(--border);
+}
+
+.picker-btn-primary {
+  background: var(--accent);
+  color: var(--surface);
+  border-color: var(--accent);
+}
+
+.picker-btn-primary:hover {
+  filter: brightness(1.05);
+}
+
+.picker-colors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.picker-color-btn {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.picker-color-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.picker-color-btn.is-selected {
+  border-color: var(--text);
+  box-shadow: 0 0 0 1px var(--text);
+}
+
+.picker-color-btn.label-green { background: #61bd4f; }
+.picker-color-btn.label-yellow { background: #f2d600; }
+.picker-color-btn.label-red { background: #eb5a46; }
+.picker-color-btn.label-blue { background: #0079bf; }
+.picker-color-btn.label-purple { background: #c377e0; }
+.picker-color-btn.label-orange { background: #ff9f1a; }
+
+.picker-priorities {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.picker-priority-btn {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  padding: 10px 14px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  font-weight: 500;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.picker-priority-btn:hover {
+  background: var(--bg);
+  border-color: var(--text-muted);
+}
+
+.picker-priority-btn.is-selected {
+  border-color: var(--accent);
+  background: rgba(18, 100, 163, 0.06);
+}
+
+.picker-priority-btn.priority-high { border-left: 4px solid #eb5a46; }
+.picker-priority-btn.priority-medium { border-left: 4px solid #f2d600; }
+.picker-priority-btn.priority-low { border-left: 4px solid #61bd4f; }
+
+.picker-clear-btn {
+  width: 100%;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  padding: 8px 12px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.picker-clear-btn:hover {
+  background: var(--bg);
+  color: var(--text);
+}
+
 /* Footer */
 .footer {
   padding: 16px 24px;

@@ -195,6 +195,160 @@
     return div.innerHTML;
   }
 
+  function dateToInputFormat(str) {
+    if (!str || !str.trim()) return "";
+    var s = str.trim();
+    var m = s.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+    if (m) return m[3] + "-" + m[2].padStart(2, "0") + "-" + m[1].padStart(2, "0");
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+    return "";
+  }
+
+  function dateToDisplayFormat(str) {
+    if (!str || !str.trim()) return "";
+    var s = str.trim();
+    var m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (m) return m[3] + "." + m[2] + "." + m[1];
+    if (/^\d{1,2}\.\d{1,2}\.\d{4}$/.test(s)) return s;
+    return s;
+  }
+
+  var pickerOverlay = null;
+  var pickerContent = null;
+  var pickerActions = null;
+  var pickerTitleEl = null;
+  var pickerOkBtn = null;
+  var pickerCancelBtn = null;
+  var pickerCloseBtn = null;
+  var pickerResolve = null;
+
+  function initPicker() {
+    pickerOverlay = document.getElementById("pickerOverlay");
+    pickerContent = document.getElementById("pickerContent");
+    pickerActions = document.getElementById("pickerActions");
+    pickerTitleEl = document.getElementById("pickerTitle");
+    pickerOkBtn = document.getElementById("pickerOk");
+    pickerCancelBtn = document.getElementById("pickerCancel");
+    pickerCloseBtn = document.getElementById("pickerClose");
+    if (!pickerOverlay) return;
+    function closePicker(value) {
+      if (pickerOverlay) pickerOverlay.style.display = "none";
+      if (pickerResolve) { pickerResolve(value); pickerResolve = null; }
+    }
+    pickerOverlay.addEventListener("click", function (e) {
+      if (e.target === pickerOverlay) closePicker(null);
+    });
+    if (pickerCloseBtn) pickerCloseBtn.addEventListener("click", function () { closePicker(null); });
+    if (pickerCancelBtn) pickerCancelBtn.addEventListener("click", function () { closePicker(null); });
+    if (pickerOkBtn) pickerOkBtn.addEventListener("click", function () {
+      var input = pickerContent.querySelector("input");
+      if (input) {
+        if (input.type === "date") closePicker(input.value ? dateToDisplayFormat(input.value) : "");
+        else closePicker(input.value ? input.value.trim() : "");
+      }
+    });
+  }
+
+  function positionPopover(anchor) {
+    var popover = document.getElementById("pickerPopover");
+    if (!popover || !anchor) return;
+    var rect = anchor.getBoundingClientRect();
+    var pad = 8;
+    var below = rect.bottom + pad;
+    var spaceBelow = window.innerHeight - rect.bottom;
+    var popoverH = 200;
+    if (spaceBelow < popoverH && rect.top > spaceBelow) {
+      popover.classList.add("picker-popover-above");
+      popover.style.top = (rect.top - popoverH - pad) + "px";
+    } else {
+      popover.classList.remove("picker-popover-above");
+      popover.style.top = below + "px";
+    }
+    popover.style.left = Math.max(pad, Math.min(rect.left, window.innerWidth - 320)) + "px";
+  }
+
+  function showDatePicker(anchor, currentValue, title, onPick) {
+    if (!pickerOverlay || !pickerContent) { initPicker(); if (!pickerOverlay) return; }
+    pickerTitleEl.textContent = title || "Tarih seçin";
+    pickerContent.innerHTML = '<label class="picker-label"><input type="date" class="picker-date-input" value="' + escapeHtml(dateToInputFormat(currentValue)) + '" /></label>';
+    pickerActions.style.display = "flex";
+    pickerOkBtn.textContent = "Tamam";
+    pickerCancelBtn.style.display = "";
+    pickerResolve = function (val) { if (onPick) onPick(val); };
+    pickerOverlay.style.display = "flex";
+    positionPopover(anchor);
+    var input = pickerContent.querySelector("input");
+    if (input) { input.focus(); input.addEventListener("keydown", function (e) { if (e.key === "Enter") pickerOkBtn.click(); }); }
+  }
+
+  function showAssigneePicker(anchor, currentValue, onPick) {
+    if (!pickerOverlay || !pickerContent) { initPicker(); if (!pickerOverlay) return; }
+    pickerTitleEl.textContent = "Sorumlu kişi";
+    pickerContent.innerHTML = '<label class="picker-label"><input type="text" class="picker-text-input" placeholder="Ad soyad" value="' + escapeHtml(currentValue) + '" autocomplete="off" /></label>';
+    pickerActions.style.display = "flex";
+    pickerOkBtn.textContent = "Tamam";
+    pickerCancelBtn.style.display = "";
+    pickerResolve = function (val) { if (onPick) onPick(val); };
+    pickerOverlay.style.display = "flex";
+    positionPopover(anchor);
+    var input = pickerContent.querySelector("input");
+    if (input) { input.focus(); input.addEventListener("keydown", function (e) { if (e.key === "Enter") pickerOkBtn.click(); }); }
+  }
+
+  function showLabelPicker(anchor, currentId, onPick) {
+    if (!pickerOverlay || !pickerContent) { initPicker(); if (!pickerOverlay) return; }
+    pickerTitleEl.textContent = "Etiket rengi";
+    var html = '<div class="picker-colors">';
+    LABEL_OPTIONS.forEach(function (o) {
+      html += '<button type="button" class="picker-color-btn ' + o.class + (o.id === currentId ? " is-selected" : "") + '" data-id="' + escapeHtml(o.id) + '" title="' + escapeHtml(o.name) + '"></button>';
+    });
+    html += '</div><button type="button" class="picker-clear-btn">Etiketi kaldır</button>';
+    pickerContent.innerHTML = html;
+    pickerActions.style.display = "none";
+    pickerResolve = function (val) { if (onPick) onPick(val); };
+    pickerOverlay.style.display = "flex";
+    positionPopover(anchor);
+    pickerContent.querySelectorAll(".picker-color-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        pickerResolve(btn.getAttribute("data-id"));
+        pickerResolve = null;
+        pickerOverlay.style.display = "none";
+      });
+    });
+    pickerContent.querySelector(".picker-clear-btn").addEventListener("click", function () {
+      pickerResolve("");
+      pickerResolve = null;
+      pickerOverlay.style.display = "none";
+    });
+  }
+
+  function showPriorityPicker(anchor, currentId, onPick) {
+    if (!pickerOverlay || !pickerContent) { initPicker(); if (!pickerOverlay) return; }
+    pickerTitleEl.textContent = "Öncelik";
+    var html = '<div class="picker-priorities">';
+    PRIORITY_OPTIONS.forEach(function (o) {
+      html += '<button type="button" class="picker-priority-btn ' + o.class + (o.id === currentId ? " is-selected" : "") + '" data-id="' + escapeHtml(o.id) + '">' + escapeHtml(o.name) + '</button>';
+    });
+    html += '</div><button type="button" class="picker-clear-btn">Önceliği kaldır</button>';
+    pickerContent.innerHTML = html;
+    pickerActions.style.display = "none";
+    pickerResolve = function (val) { if (onPick) onPick(val); };
+    pickerOverlay.style.display = "flex";
+    positionPopover(anchor);
+    pickerContent.querySelectorAll(".picker-priority-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        pickerResolve(btn.getAttribute("data-id"));
+        pickerResolve = null;
+        pickerOverlay.style.display = "none";
+      });
+    });
+    pickerContent.querySelector(".picker-clear-btn").addEventListener("click", function () {
+      pickerResolve("");
+      pickerResolve = null;
+      pickerOverlay.style.display = "none";
+    });
+  }
+
   function renderList(groupId) {
     var list = document.querySelector('.todo-list[data-group="' + groupId + '"]');
     if (!list) return;
@@ -315,20 +469,20 @@
         var item = btn.closest(".roadmap-step");
         var id = item.getAttribute("data-id");
         var current = state.dates[id] || "";
-        var newDate = window.prompt("Tamamlanma veya hedef tarih (örn: 15.02.2025):", current);
-        if (newDate === null) return;
-        var trimmed = newDate.trim();
-        persistDate(id, trimmed);
-        var meta = item.querySelector(".todo-meta");
-        var dateEl = meta.querySelector(".todo-date");
-        if (trimmed) {
-          if (!dateEl) {
-            dateEl = document.createElement("span");
-            dateEl.className = "todo-date";
-            meta.insertBefore(dateEl, meta.firstChild);
-          }
-          dateEl.textContent = trimmed;
-        } else if (dateEl) dateEl.remove();
+        showDatePicker(btn, current, "Tarih seçin", function (val) {
+          if (val === null) return;
+          persistDate(id, val);
+          var meta = item.querySelector(".todo-meta");
+          var dateEl = meta.querySelector(".todo-date");
+          if (val) {
+            if (!dateEl) {
+              dateEl = document.createElement("span");
+              dateEl.className = "todo-date";
+              meta.insertBefore(dateEl, meta.firstChild);
+            }
+            dateEl.textContent = val;
+          } else if (dateEl) dateEl.remove();
+        });
       });
     });
     list.querySelectorAll(".assignee-btn").forEach(function (btn) {
@@ -336,20 +490,20 @@
         var item = btn.closest(".roadmap-step");
         var id = item.getAttribute("data-id");
         var current = state.assignees[id] || "";
-        var name = window.prompt("Sorumlu kişi adı:", current);
-        if (name === null) return;
-        var trimmed = name.trim();
-        persistAssignee(id, trimmed);
-        var meta = item.querySelector(".todo-meta");
-        var assigneeEl = meta.querySelector(".todo-assignee");
-        if (trimmed) {
-          if (!assigneeEl) {
-            assigneeEl = document.createElement("span");
-            assigneeEl.className = "todo-assignee";
-            meta.insertBefore(assigneeEl, meta.firstChild);
-          }
-          assigneeEl.textContent = "Sorumlu: " + trimmed;
-        } else if (assigneeEl) assigneeEl.remove();
+        showAssigneePicker(btn, current, function (val) {
+          if (val === null) return;
+          persistAssignee(id, val);
+          var meta = item.querySelector(".todo-meta");
+          var assigneeEl = meta.querySelector(".todo-assignee");
+          if (val) {
+            if (!assigneeEl) {
+              assigneeEl = document.createElement("span");
+              assigneeEl.className = "todo-assignee";
+              meta.insertBefore(assigneeEl, meta.firstChild);
+            }
+            assigneeEl.textContent = "Sorumlu: " + val;
+          } else if (assigneeEl) assigneeEl.remove();
+        });
       });
     });
     list.querySelectorAll(".deadline-btn").forEach(function (btn) {
@@ -357,20 +511,20 @@
         var item = btn.closest(".roadmap-step");
         var id = item.getAttribute("data-id");
         var current = state.deadlines[id] || "";
-        var newDeadline = window.prompt("Termin tarihi (örn: 15.03.2025):", current);
-        if (newDeadline === null) return;
-        var trimmed = newDeadline.trim();
-        persistDeadline(id, trimmed);
-        var meta = item.querySelector(".todo-meta");
-        var deadlineEl = meta.querySelector(".todo-deadline");
-        if (trimmed) {
-          if (!deadlineEl) {
-            deadlineEl = document.createElement("span");
-            deadlineEl.className = "todo-deadline";
-            meta.insertBefore(deadlineEl, meta.firstChild);
-          }
-          deadlineEl.textContent = "Termin: " + trimmed;
-        } else if (deadlineEl) deadlineEl.remove();
+        showDatePicker(btn, current, "Termin tarihi", function (val) {
+          if (val === null) return;
+          persistDeadline(id, val);
+          var meta = item.querySelector(".todo-meta");
+          var deadlineEl = meta.querySelector(".todo-deadline");
+          if (val) {
+            if (!deadlineEl) {
+              deadlineEl = document.createElement("span");
+              deadlineEl.className = "todo-deadline";
+              meta.insertBefore(deadlineEl, meta.firstChild);
+            }
+            deadlineEl.textContent = "Termin: " + val;
+          } else if (deadlineEl) deadlineEl.remove();
+        });
       });
     });
     list.querySelectorAll(".note-save-btn").forEach(function (btn) {
@@ -428,14 +582,12 @@
         var item = btn.closest(".roadmap-step");
         var id = item.getAttribute("data-id");
         var current = state.labels[id] || "";
-        var names = LABEL_OPTIONS.map(function (o) { return o.id + "=" + o.name; }).join(", ");
-        var raw = window.prompt("Etiket: " + names + " (veya boş bırak)", current);
-        if (raw === null) return;
-        var chosen = raw.trim().toLowerCase();
-        var opt = LABEL_OPTIONS.find(function (o) { return o.id === chosen || o.name.toLowerCase() === chosen; });
-        persistLabel(id, opt ? opt.id : "");
-        var groupId = list.getAttribute("data-group");
-        renderList(groupId);
+        showLabelPicker(btn, current, function (val) {
+          if (val === null) return;
+          persistLabel(id, val);
+          var groupId = list.getAttribute("data-group");
+          renderList(groupId);
+        });
       });
     });
 
@@ -444,14 +596,12 @@
         var item = btn.closest(".roadmap-step");
         var id = item.getAttribute("data-id");
         var current = state.priority[id] || "";
-        var names = PRIORITY_OPTIONS.map(function (o) { return o.id + "=" + o.name; }).join(", ");
-        var raw = window.prompt("Öncelik: " + names + " (veya boş bırak)", current);
-        if (raw === null) return;
-        var chosen = raw.trim().toLowerCase();
-        var opt = PRIORITY_OPTIONS.find(function (o) { return o.id === chosen || o.name.toLowerCase() === chosen; });
-        persistPriority(id, opt ? opt.id : "");
-        var groupId = list.getAttribute("data-group");
-        renderList(groupId);
+        showPriorityPicker(btn, current, function (val) {
+          if (val === null) return;
+          persistPriority(id, val);
+          var groupId = list.getAttribute("data-group");
+          renderList(groupId);
+        });
       });
     });
 
