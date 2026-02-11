@@ -250,13 +250,32 @@
         else closePicker(input.value ? input.value.trim() : "");
       }
     });
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", applyPickerViewportHeight);
+      window.visualViewport.addEventListener("scroll", applyPickerViewportHeight);
+    }
   }
 
   function positionPopover(anchor) {
     var popover = document.getElementById("pickerPopover");
-    if (!popover || !anchor) return;
-    var rect = anchor.getBoundingClientRect();
+    if (!popover) return;
     var pad = 8;
+    var isMobile = window.innerWidth <= 768;
+    if (isMobile) {
+      popover.classList.add("picker-popover-mobile");
+      popover.style.top = "max(" + pad + "px, env(safe-area-inset-top, 12px))";
+      popover.style.left = "50%";
+      popover.style.right = "auto";
+      popover.style.transform = "translateX(-50%)";
+      applyPickerViewportHeight();
+      return;
+    }
+    popover.classList.remove("picker-popover-mobile");
+    popover.style.maxHeight = "";
+    var overlay = document.getElementById("pickerOverlay");
+    if (overlay) overlay.style.height = "";
+    if (!anchor) return;
+    var rect = anchor.getBoundingClientRect();
     var below = rect.bottom + pad;
     var spaceBelow = window.innerHeight - rect.bottom;
     var popoverH = 200;
@@ -268,6 +287,21 @@
       popover.style.top = below + "px";
     }
     popover.style.left = Math.max(pad, Math.min(rect.left, window.innerWidth - 320)) + "px";
+    popover.style.transform = "";
+  }
+
+  function applyPickerViewportHeight() {
+    var overlay = document.getElementById("pickerOverlay");
+    if (!overlay || overlay.style.display !== "flex") return;
+    var vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+    overlay.style.height = vh + "px";
+    overlay.style.alignItems = "flex-start";
+    var popover = document.getElementById("pickerPopover");
+    if (popover && popover.classList.contains("picker-popover-mobile")) {
+      var safeTop = 12;
+      var safeBottom = 12;
+      popover.style.maxHeight = (vh - safeTop - safeBottom - 20) + "px";
+    }
   }
 
   function showDatePicker(anchor, currentValue, title, onPick) {

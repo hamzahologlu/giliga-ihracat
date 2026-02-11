@@ -1288,6 +1288,27 @@ body {
     min-width: 0;
     width: 100%;
     max-width: none;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .picker-popover-mobile {
+    top: max(12px, env(safe-area-inset-top)) !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+  }
+
+  .picker-popover .picker-content {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .picker-popover .picker-actions {
+    flex-shrink: 0;
   }
 
   .picker-content {
