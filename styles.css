@@ -1309,6 +1309,21 @@ body {
 
   .picker-popover .picker-actions {
     flex-shrink: 0;
+    width: 100%;
+    padding: 12px 14px;
+    padding-left: max(14px, env(safe-area-inset-left));
+    padding-right: max(14px, env(safe-area-inset-right));
+    justify-content: stretch;
+    gap: 12px;
+  }
+
+  .picker-popover .picker-actions .picker-btn {
+    flex: 1 1 0;
+    min-width: 80px;
+    min-height: 44px;
+    padding: 10px 14px;
+    font-size: 15px;
+    white-space: nowrap;
   }
 
   .picker-content {
