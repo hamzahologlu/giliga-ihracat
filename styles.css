@@ -234,6 +234,21 @@ body {
   padding: 20px 24px 32px;
   background: var(--bg);
   overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.board-main::-webkit-scrollbar {
+  height: 10px;
+}
+
+.board-main::-webkit-scrollbar-track {
+  background: var(--border);
+  border-radius: 5px;
+}
+
+.board-main::-webkit-scrollbar-thumb {
+  background: var(--text-muted);
+  border-radius: 5px;
 }
 
 .board {
@@ -244,12 +259,13 @@ body {
 }
 
 .board-list {
-  flex: 0 0 300px;
-  min-width: 300px;
-  background: var(--border);
+  flex: 0 0 320px;
+  min-width: 320px;
+  width: 320px;
+  background: #e8e8e8;
   border-radius: var(--radius);
-  padding: 12px;
-  max-height: calc(100vh - 180px);
+  padding: 14px;
+  max-height: calc(100vh - 160px);
   display: flex;
   flex-direction: column;
 }
@@ -293,6 +309,13 @@ body {
   min-height: 60px;
   padding: 4px 0;
   transition: background 0.15s;
+  align-items: stretch;
+}
+
+.board-list-cards .board-card {
+  width: 100%;
+  min-width: 0;
+  flex-shrink: 0;
 }
 
 .board-list-cards-drag-over {
@@ -307,6 +330,7 @@ body {
   border: 1px solid var(--border);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
   transition: box-shadow 0.15s, border-color 0.15s;
+  position: relative;
 }
 
 .board-card:active {
@@ -319,34 +343,72 @@ body {
 }
 
 .board-card-inner {
-  padding: 12px 14px;
+  padding: 14px 16px;
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  position: relative;
+}
+
+.board-card-inner .todo-check {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  margin: 0;
 }
 
 .board-card .todo-body {
   flex: 1;
   min-width: 0;
+  padding-right: 28px;
 }
 
 .board-card .todo-title {
   font-size: 14px;
+  font-weight: 600;
   margin: 0 0 6px;
+  line-height: 1.35;
 }
 
 .board-card .todo-detail {
-  font-size: 13px;
-  margin: 0 0 8px;
+  font-size: 12px;
+  margin: 0 0 10px;
+  line-height: 1.4;
+  color: var(--text-muted);
 }
 
 .board-card .todo-meta {
   margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
 }
 
 .board-card .todo-actions {
-  margin-top: 8px;
+  margin-top: 10px;
   flex-wrap: wrap;
+  gap: 6px;
+  display: flex;
+}
+
+.board-card .todo-actions .assignee-btn,
+.board-card .todo-actions .deadline-btn,
+.board-card .todo-actions .note-btn,
+.board-card .todo-actions .date-btn {
+  padding: 6px 10px;
+  font-size: 12px;
+  border-radius: 4px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.board-card .todo-actions button:hover {
+  background: var(--accent);
+  color: var(--surface);
+  border-color: var(--accent);
 }
 
 .board-hint {
@@ -924,7 +986,8 @@ body {
   }
 
   .board-list {
-    min-width: 260px;
-    flex: 0 0 260px;
+    min-width: 280px;
+    flex: 0 0 280px;
+    width: 280px;
   }
 }
