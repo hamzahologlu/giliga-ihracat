@@ -17,7 +17,10 @@
     { id: "low", name: "Düşük", class: "priority-low" }
   ];
 
-  var EMPTY_STATE = { done: {}, notes: {}, assignees: {}, deadlines: {}, labels: {}, checklists: {}, priority: {} };
+  var EMPTY_STATE = { done: {}, notes: {}, assignees: {}, deadlines: {}, labels: {}, checklists: {}, priority: {}, files: {} };
+  var FILE_MAX_SIZE = 500 * 1024;
+  var FILE_MAX_COUNT = 3;
+  var currentFileTaskId = null;
 
   function getState() {
     try {
@@ -37,7 +40,8 @@
       deadlines: parsed.deadlines || empty.deadlines,
       labels: parsed.labels || empty.labels,
       checklists: parsed.checklists || empty.checklists,
-      priority: parsed.priority || empty.priority
+      priority: parsed.priority || empty.priority,
+      files: parsed.files || empty.files
     };
   }
 
@@ -78,7 +82,8 @@
           deadlines: state.deadlines,
           labels: state.labels,
           checklists: state.checklists,
-          priority: state.priority
+          priority: state.priority,
+          files: state.files
         },
         updated_at: new Date().toISOString()
       };
@@ -134,6 +139,11 @@
 
   function persistPriority(id, priorityId) {
     if (priorityId) state.priority[id] = priorityId; else delete state.priority[id];
+    saveState(state);
+  }
+
+  function persistFiles(id, list) {
+    if (list && list.length) state.files[id] = list; else delete state.files[id];
     saveState(state);
   }
 
@@ -356,6 +366,7 @@
       var labelId = state.labels[item.id] || "";
       var priorityId = state.priority[item.id] || "";
       var checklistItems = state.checklists[item.id] || [];
+      var taskFiles = state.files[item.id] || [];
       var labelOpt = LABEL_OPTIONS.find(function (o) { return o.id === labelId; });
       var priorityOpt = PRIORITY_OPTIONS.find(function (o) { return o.id === priorityId; });
       var clDone = checklistItems.filter(function (c) { return c.done; }).length;
@@ -397,6 +408,9 @@
         (assignee ? '<span class="todo-assignee">Sorumlu: ' + escapeHtml(assignee) + '</span>' : '') +
         (deadline ? '<span class="todo-deadline">Termin: ' + escapeHtml(deadline) + '</span>' : '') +
         (note ? '<span class="todo-note">' + escapeHtml(note) + '</span>' : '') +
+        (taskFiles.length ? '<div class="todo-files">' + taskFiles.map(function (f) {
+          return '<span class="todo-file"><a href="' + escapeHtml(f.dataUrl) + '" target="_blank" rel="noopener" class="todo-file-link">' + escapeHtml(f.name) + '</a> <button type="button" class="file-remove-btn" data-file-id="' + escapeHtml(f.id) + '" aria-label="Kaldır">&times;</button></span>';
+        }).join("") + '</div>' : '') +
         '<div class="note-field" style="display:none"><textarea placeholder="Not ekle..." rows="2"></textarea><button type="button" class="note-save-btn">Kaydet</button></div>' +
         '</div>' +
         checklistHtml +
@@ -408,6 +422,7 @@
         '<button type="button" class="action-btn note-btn" aria-label="Not"><span class="action-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg></span><span class="action-text">Not</span></button>' +
         '<button type="button" class="action-btn label-btn" aria-label="Etiket"><span class="action-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17-7.17a2 2 0 0 0-2.83 0L2 12v10a2 2 0 0 0 2 2h10a2 2 0 0 0 1.41-.59l7.18-7.18a2 2 0 0 0 0-2.82z"/></svg></span><span class="action-text">Etiket</span></button>' +
         '<button type="button" class="action-btn priority-btn" aria-label="Öncelik"><span class="action-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></svg></span><span class="action-text">Öncelik</span></button>' +
+        '<button type="button" class="action-btn file-btn" aria-label="Dosya"><span class="action-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></span><span class="action-text">Dosya</span></button>' +
         '</div></div></div></div></li>';
     }).join('');
     attachListEvents(list);
@@ -639,6 +654,34 @@
         renderList(groupId);
       });
     });
+
+    list.querySelectorAll(".file-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var step = btn.closest(".roadmap-step");
+        var id = step.getAttribute("data-id");
+        var existing = (state.files[id] || []).length;
+        if (existing >= FILE_MAX_COUNT) {
+          window.alert("En fazla " + FILE_MAX_COUNT + " dosya ekleyebilirsiniz.");
+          return;
+        }
+        currentFileTaskId = id;
+        var input = document.getElementById("taskFileInput");
+        if (input) input.click();
+      });
+    });
+
+    list.querySelectorAll(".file-remove-btn").forEach(function (btn) {
+      btn.addEventListener("click", function (e) {
+        e.preventDefault();
+        var step = btn.closest(".roadmap-step");
+        var id = step.getAttribute("data-id");
+        var fileId = btn.getAttribute("data-file-id");
+        var items = (state.files[id] || []).filter(function (f) { return f.id !== fileId; });
+        persistFiles(id, items);
+        var groupId = list.getAttribute("data-group");
+        renderList(groupId);
+      });
+    });
   }
 
   function initAuth() {
@@ -729,6 +772,52 @@
       });
     });
   });
+
+  (function () {
+    var input = document.getElementById("taskFileInput");
+    if (!input) return;
+    input.addEventListener("change", function () {
+      var taskId = currentFileTaskId;
+      currentFileTaskId = null;
+      input.value = "";
+      if (!taskId) return;
+      var list = (state.files[taskId] || []).slice();
+      var files = input.files;
+      if (!files || !files.length) return;
+      var groupId = (document.querySelector(".panel.active") && document.querySelector(".panel.active").id) || GROUP_IDS[0];
+      function addOne(index) {
+        if (index >= files.length) {
+          persistFiles(taskId, list);
+          renderList(groupId);
+          return;
+        }
+        if (list.length >= FILE_MAX_COUNT) {
+          persistFiles(taskId, list);
+          renderList(groupId);
+          return;
+        }
+        var file = files[index];
+        if (file.size > FILE_MAX_SIZE) {
+          window.alert(file.name + " çok büyük (maks. " + Math.round(FILE_MAX_SIZE / 1024) + " KB).");
+          addOne(index + 1);
+          return;
+        }
+        var reader = new FileReader();
+        reader.onload = function () {
+          list.push({
+            id: "file-" + Date.now() + "-" + index + "-" + Math.random().toString(36).slice(2),
+            name: file.name,
+            size: file.size,
+            dataUrl: reader.result
+          });
+          addOne(index + 1);
+        };
+        reader.onerror = function () { addOne(index + 1); };
+        reader.readAsDataURL(file);
+      }
+      addOne(0);
+    });
+  })();
 
   GROUP_IDS.forEach(renderList);
   renderProgress();

@@ -32,6 +32,9 @@ body {
   font-size: 15px;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .app {
@@ -45,7 +48,11 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
   padding: 12px 24px;
+  padding-left: max(24px, env(safe-area-inset-left));
+  padding-right: max(24px, env(safe-area-inset-right));
   background: var(--surface);
   border-bottom: 1px solid var(--border);
 }
@@ -409,6 +416,54 @@ body {
 .todo-deadline {
   font-size: 13px;
   color: var(--warning, #d97706);
+}
+
+.todo-files {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.todo-file {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  padding: 4px 8px;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.todo-file-link {
+  color: var(--accent);
+  text-decoration: none;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.todo-file-link:hover {
+  text-decoration: underline;
+}
+
+.file-remove-btn {
+  padding: 0 4px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.file-remove-btn:hover {
+  background: var(--border);
+  color: var(--text);
 }
 
 .todo-actions-bar {
@@ -1079,7 +1134,7 @@ body {
   text-decoration: underline;
 }
 
-/* Responsive */
+/* Responsive — %100 mobil uyumlu */
 @media (max-width: 768px) {
   .layout {
     flex-direction: column;
@@ -1089,8 +1144,9 @@ body {
     width: 100%;
     flex-direction: row;
     flex-wrap: wrap;
-    padding: 8px;
-    gap: 4px;
+    padding: 10px 12px;
+    padding-left: max(12px, env(safe-area-inset-left));
+    gap: 8px;
   }
 
   .sidebar-section {
@@ -1105,19 +1161,20 @@ body {
   .sidebar-nav {
     flex-direction: row;
     flex-wrap: wrap;
-    gap: 4px;
+    gap: 8px;
   }
 
   .sidebar-item {
-    padding: 8px 12px;
+    padding: 12px 14px;
+    min-height: 44px;
     font-size: 13px;
-    flex: 1;
+    flex: 1 1 calc(50% - 4px);
     min-width: 0;
   }
 
   .sidebar-item-icon {
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
     font-size: 11px;
   }
 
@@ -1128,36 +1185,161 @@ body {
   .sidebar-footer {
     margin-top: 0;
     width: 100%;
-    padding: 8px 12px;
+    padding: 10px 12px;
     border-top: none;
   }
 
   .main {
-    padding: 20px 16px 32px;
+    padding: 16px 12px 24px;
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+  }
+
+  .panel-header {
+    margin-bottom: 16px;
+  }
+
+  .panel-title {
+    font-size: 1.2rem;
+  }
+
+  .panel-desc {
+    font-size: 14px;
   }
 
   .roadmap-step-marker {
-    width: 40px;
+    width: 36px;
   }
 
   .roadmap-step-num {
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
     font-size: 12px;
   }
 
   .roadmap-step:not(:last-child) .roadmap-step-marker::after {
-    left: 19px;
+    left: 17px;
+  }
+
+  .todo-title {
+    font-size: 15px;
+  }
+
+  .todo-detail {
+    font-size: 14px;
+  }
+
+  .todo-actions-bar {
+    margin-top: 12px;
+    padding: 10px 12px;
+  }
+
+  .todo-actions .action-btn {
+    min-height: 44px;
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .todo-actions .action-icon {
+    width: 20px;
+    height: 20px;
   }
 
   .header {
-    flex-wrap: wrap;
-    gap: 8px;
+    padding: 10px 16px;
+    padding-left: max(16px, env(safe-area-inset-left));
+  }
+
+  .header-brand {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .logo {
+    font-size: 1.1rem;
+  }
+
+  .logo-sub {
+    font-size: 12px;
   }
 
   .header-actions {
     width: 100%;
     justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 10px;
   }
 
+  .auth-wrap {
+    flex-wrap: wrap;
+  }
+
+  .auth-user {
+    max-width: 120px;
+  }
+
+  .picker-overlay {
+    padding: 12px;
+    align-items: flex-start;
+    padding-top: max(12px, env(safe-area-inset-top));
+  }
+
+  .picker-popover {
+    min-width: 0;
+    width: 100%;
+    max-width: none;
+  }
+
+  .picker-content {
+    padding: 12px;
+  }
+
+  .picker-date-input,
+  .picker-text-input {
+    font-size: 16px; /* iOS zoom önleme */
+  }
+
+  .note-field textarea {
+    font-size: 16px;
+    min-height: 80px;
+  }
+
+  .footer {
+    padding: 12px 16px;
+    font-size: 12px;
+  }
+
+  .login-screen {
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+
+  .auth-input {
+    font-size: 16px;
+  }
+
+  .todo-file-link {
+    max-width: 140px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar-item {
+    flex: 1 1 100%;
+  }
+
+  .header-actions {
+    gap: 8px;
+  }
+
+  .progress-pill {
+    padding: 8px 12px;
+  }
+
+  .todo-actions .action-btn .action-text {
+    display: inline;
+  }
+
+  .todo-file-link {
+    max-width: 100px;
+  }
 }
