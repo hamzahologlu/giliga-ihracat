@@ -4,21 +4,46 @@
   var saveToCloudTimer = null;
   var authMode = "signin";
 
+  function getDefaultCardListAndOrder() {
+    var cardList = {};
+    var cardOrder = { "on-sartlar": [], "kapsama": [], "destekler": [], "yillik": [] };
+    var data = window.EIHRACAT_TODO_DATA || {};
+    Object.keys(cardOrder).forEach(function (groupId) {
+      var items = data[groupId];
+      if (items) items.forEach(function (item) {
+        cardList[item.id] = groupId;
+        cardOrder[groupId].push(item.id);
+      });
+    });
+    return { cardList: cardList, cardOrder: cardOrder };
+  }
+
   function getState() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      const base = { done: {}, notes: {}, dates: {}, assignees: {}, deadlines: {} };
+      var defaults = getDefaultCardListAndOrder();
+      const base = { done: {}, notes: {}, dates: {}, assignees: {}, deadlines: {}, cardList: defaults.cardList, cardOrder: defaults.cardOrder };
       if (!raw) return base;
       const parsed = JSON.parse(raw);
+      var cardList = parsed.cardList;
+      var cardOrder = parsed.cardOrder;
+      if (!cardList || !cardOrder) {
+        var d = getDefaultCardListAndOrder();
+        cardList = cardList || d.cardList;
+        cardOrder = cardOrder || d.cardOrder;
+      }
       return {
         done: parsed.done || {},
         notes: parsed.notes || {},
         dates: parsed.dates || {},
         assignees: parsed.assignees || {},
-        deadlines: parsed.deadlines || {}
+        deadlines: parsed.deadlines || {},
+        cardList: cardList,
+        cardOrder: cardOrder
       };
     } catch (_) {
-      return { done: {}, notes: {}, dates: {}, assignees: {}, deadlines: {} };
+      var d = getDefaultCardListAndOrder();
+      return { done: {}, notes: {}, dates: {}, assignees: {}, deadlines: {}, cardList: d.cardList, cardOrder: d.cardOrder };
     }
   }
 
@@ -57,7 +82,9 @@
           notes: state.notes,
           dates: state.dates,
           assignees: state.assignees,
-          deadlines: state.deadlines
+          deadlines: state.deadlines,
+          cardList: state.cardList,
+          cardOrder: state.cardOrder
         },
         updated_at: new Date().toISOString()
       };
@@ -66,20 +93,38 @@
   }
 
   function replaceState(data) {
-    var base = { done: {}, notes: {}, dates: {}, assignees: {}, deadlines: {} };
+    var d = getDefaultCardListAndOrder();
+    var base = { done: {}, notes: {}, dates: {}, assignees: {}, deadlines: {}, cardList: d.cardList, cardOrder: d.cardOrder };
     state.done = data && data.done ? data.done : base.done;
     state.notes = data && data.notes ? data.notes : base.notes;
     state.dates = data && data.dates ? data.dates : base.dates;
     state.assignees = data && data.assignees ? data.assignees : base.assignees;
     state.deadlines = data && data.deadlines ? data.deadlines : base.deadlines;
+    state.cardList = data && data.cardList ? data.cardList : base.cardList;
+    state.cardOrder = data && data.cardOrder ? data.cardOrder : base.cardOrder;
     saveState(state);
     fullRefresh();
   }
 
   function fullRefresh() {
-    ["on-sartlar", "kapsama", "destekler", "yillik"].forEach(renderList);
+    renderBoard();
     renderProgress();
   }
+
+  var BOARD_LISTS = [
+    { id: "on-sartlar", title: "1. Ön Şartlar", desc: "E-ihracat desteklerine başvurmadan önce sağlamanız gereken temel koşullar." },
+    { id: "kapsama", title: "2. Kapsama Alınma", desc: "Statünüze göre destek kapsamına alınma başvurusu." },
+    { id: "destekler", title: "3. Destek Başvuruları", desc: "Ön onay → harcama → ödeme başvurusu (6 ay içinde)." },
+    { id: "yillik", title: "4. Yıllık Yükümlülükler", desc: "E-İhracat Değerlendirme Beyanı ve ortaklık değişikliği bildirimi." }
+  ];
+
+  var ALL_CARDS = {};
+  (function () {
+    var data = window.EIHRACAT_TODO_DATA || {};
+    Object.keys(data).forEach(function (groupId) {
+      (data[groupId] || []).forEach(function (item) { ALL_CARDS[item.id] = { id: item.id, title: item.title, detail: item.detail }; });
+    });
+  })();
 
   const state = getState();
 
@@ -109,14 +154,12 @@
   }
 
   function getCounts() {
-    const counts = {};
-    Object.keys(window.EIHRACAT_TODO_DATA || {}).forEach(function (groupId) {
-      const items = window.EIHRACAT_TODO_DATA[groupId];
-      let done = 0;
-      items.forEach(function (item) {
-        if (state.done[item.id]) done++;
-      });
-      counts[groupId] = { done: done, total: items.length };
+    var counts = {};
+    BOARD_LISTS.forEach(function (list) {
+      var ids = state.cardOrder[list.id] || [];
+      var done = 0;
+      ids.forEach(function (id) { if (state.done[id]) done++; });
+      counts[list.id] = { done: done, total: ids.length };
     });
     return counts;
   }
@@ -137,58 +180,85 @@
   function updateSidebarCounts(counts) {
     Object.keys(counts || {}).forEach(function (groupId) {
       const c = counts[groupId];
-      const span = document.querySelector('.sidebar-item-count[data-count="' + groupId + '"]');
-      if (span) span.textContent = c.done + "/" + c.total;
+      const span = document.querySelector('.board-list-count[data-list="' + groupId + '"]');
+      if (span) span.textContent = (c.done || 0) + "/" + (c.total || 0);
     });
   }
 
-  function renderList(groupId) {
-    const list = document.querySelector('.todo-list[data-group="' + groupId + '"]');
-    if (!list) return;
-    const items = window.EIHRACAT_TODO_DATA[groupId];
-    if (!items) return;
+  function moveCard(cardId, toListId) {
+    var fromListId = state.cardList[cardId];
+    if (!fromListId || fromListId === toListId) return;
+    var orderFrom = state.cardOrder[fromListId] || [];
+    var orderTo = state.cardOrder[toListId] || [];
+    state.cardOrder[fromListId] = orderFrom.filter(function (id) { return id !== cardId; });
+    state.cardOrder[toListId] = orderTo.concat([cardId]);
+    state.cardList[cardId] = toListId;
+    saveState(state);
+    renderBoard();
+    renderProgress();
+  }
 
-    list.innerHTML = items
-      .map(function (item, index) {
-        const stepNum = index + 1;
-        const done = state.done[item.id];
-        const note = state.notes[item.id] || "";
-        const date = state.dates[item.id] || "";
-        const assignee = state.assignees[item.id] || "";
-        const deadline = state.deadlines[item.id] || "";
-        return (
-          '<li class="roadmap-step' + (done ? " done" : "") + '" data-id="' + item.id + '">' +
-          '<div class="roadmap-step-marker">' +
-          '<span class="roadmap-step-num">' + stepNum + '</span>' +
-          '</div>' +
-          '<div class="roadmap-step-content">' +
-          '<div class="todo-item">' +
-          '<span class="todo-check" role="button" tabindex="0" aria-label="Tamamla">' +
-          (done ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg>' : "") +
-          "</span>" +
-          '<div class="todo-body">' +
-          '<p class="todo-title">' + escapeHtml(item.title) + "</p>" +
-          (item.detail ? '<p class="todo-detail">' + escapeHtml(item.detail) + "</p>" : "") +
-          '<div class="todo-meta">' +
-          (assignee ? '<span class="todo-assignee">Sorumlu: ' + escapeHtml(assignee) + "</span>" : "") +
-          (deadline ? '<span class="todo-deadline">Termin: ' + escapeHtml(deadline) + "</span>" : "") +
-          (date ? '<span class="todo-date">' + escapeHtml(date) + "</span>" : "") +
-          (note ? '<span class="todo-note">' + escapeHtml(note) + "</span>" : "") +
-          '<div class="note-field" style="display:none"><textarea placeholder="Not ekle..." rows="2"></textarea><button type="button" class="note-save-btn">Kaydet</button></div>' +
-          '</div>' +
-          '<div class="todo-actions">' +
-          '<button type="button" class="assignee-btn" aria-label="Sorumlu">Sorumlu</button>' +
-          '<button type="button" class="deadline-btn" aria-label="Termin">Termin</button>' +
-          '<button type="button" class="note-btn" aria-label="Not">Not</button>' +
-          '<button type="button" class="date-btn" aria-label="Tarih">Tarih</button>' +
-          "</div>" +
-          "</div>" +
-          "</div></div></li>"
-        );
-      })
-      .join("");
+  function renderCard(item) {
+    var done = state.done[item.id];
+    var note = state.notes[item.id] || "";
+    var date = state.dates[item.id] || "";
+    var assignee = state.assignees[item.id] || "";
+    var deadline = state.deadlines[item.id] || "";
+    return (
+      '<div class="board-card roadmap-step' + (done ? " done" : "") + '" data-id="' + item.id + '" draggable="true">' +
+      '<div class="board-card-inner">' +
+      '<span class="todo-check" role="button" tabindex="0" aria-label="Tamamla">' +
+      (done ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg>' : "") +
+      '</span>' +
+      '<div class="todo-body">' +
+      '<p class="todo-title">' + escapeHtml(item.title) + "</p>" +
+      (item.detail ? '<p class="todo-detail">' + escapeHtml(item.detail) + "</p>" : "") +
+      '<div class="todo-meta">' +
+      (assignee ? '<span class="todo-assignee">Sorumlu: ' + escapeHtml(assignee) + "</span>" : "") +
+      (deadline ? '<span class="todo-deadline">Termin: ' + escapeHtml(deadline) + "</span>" : "") +
+      (date ? '<span class="todo-date">' + escapeHtml(date) + "</span>" : "") +
+      (note ? '<span class="todo-note">' + escapeHtml(note) + "</span>" : "") +
+      '<div class="note-field" style="display:none"><textarea placeholder="Not ekle..." rows="2"></textarea><button type="button" class="note-save-btn">Kaydet</button></div>' +
+      '</div>' +
+      '<div class="todo-actions">' +
+      '<button type="button" class="assignee-btn" aria-label="Sorumlu">Sorumlu</button>' +
+      '<button type="button" class="deadline-btn" aria-label="Termin">Termin</button>' +
+      '<button type="button" class="note-btn" aria-label="Not">Not</button>' +
+      '<button type="button" class="date-btn" aria-label="Tarih">Tarih</button>' +
+      '</div></div></div>'
+    );
+  }
 
-    list.querySelectorAll(".todo-check").forEach(function (btn) {
+  function renderBoard() {
+    var board = document.getElementById("board");
+    if (!board) return;
+    var html = '';
+    BOARD_LISTS.forEach(function (list) {
+      var ids = state.cardOrder[list.id] || [];
+      var count = getCounts()[list.id];
+      var countStr = (count ? count.done : 0) + "/" + (count ? count.total : 0);
+      html += '<div class="board-list" data-list-id="' + list.id + '">' +
+        '<div class="board-list-header">' +
+        '<h3 class="board-list-title">' + escapeHtml(list.title) + '</h3>' +
+        '<span class="board-list-count" data-list="' + list.id + '">' + countStr + '</span>' +
+        '</div>' +
+        '<p class="board-list-desc">' + escapeHtml(list.desc) + '</p>' +
+        '<div class="board-list-cards">';
+      ids.forEach(function (id) {
+        var item = ALL_CARDS[id];
+        if (item) html += renderCard(item);
+      });
+      html += '</div></div>';
+    });
+    board.innerHTML = html;
+    attachBoardEvents();
+  }
+
+  function attachBoardEvents() {
+    var board = document.getElementById("board");
+    if (!board) return;
+
+    board.querySelectorAll(".todo-check").forEach(function (btn) {
       btn.addEventListener("click", function () {
         const step = btn.closest(".roadmap-step");
         const id = step.getAttribute("data-id");
@@ -201,7 +271,7 @@
       });
     });
 
-    list.querySelectorAll(".note-btn").forEach(function (btn) {
+    board.querySelectorAll(".note-btn").forEach(function (btn) {
       btn.addEventListener("click", function () {
         const item = btn.closest(".roadmap-step");
         const id = item.getAttribute("data-id");
@@ -230,7 +300,7 @@
       });
     });
 
-    list.querySelectorAll(".date-btn").forEach(function (btn) {
+    board.querySelectorAll(".date-btn").forEach(function (btn) {
       btn.addEventListener("click", function () {
         const item = btn.closest(".roadmap-step");
         const id = item.getAttribute("data-id");
@@ -252,7 +322,7 @@
       });
     });
 
-    list.querySelectorAll(".assignee-btn").forEach(function (btn) {
+    board.querySelectorAll(".assignee-btn").forEach(function (btn) {
       btn.addEventListener("click", function () {
         const item = btn.closest(".roadmap-step");
         const id = item.getAttribute("data-id");
@@ -274,7 +344,7 @@
       });
     });
 
-    list.querySelectorAll(".deadline-btn").forEach(function (btn) {
+    board.querySelectorAll(".deadline-btn").forEach(function (btn) {
       btn.addEventListener("click", function () {
         const item = btn.closest(".roadmap-step");
         const id = item.getAttribute("data-id");
@@ -296,7 +366,7 @@
       });
     });
 
-    list.querySelectorAll(".note-save-btn").forEach(function (btn) {
+    board.querySelectorAll(".note-save-btn").forEach(function (btn) {
       btn.addEventListener("click", function () {
         var noteField = btn.closest(".note-field");
         var item = btn.closest(".roadmap-step");
@@ -321,7 +391,7 @@
       });
     });
 
-    list.querySelectorAll(".note-field textarea").forEach(function (ta) {
+    board.querySelectorAll(".note-field textarea").forEach(function (ta) {
       ta.addEventListener("blur", function () {
         const item = ta.closest(".roadmap-step");
         const id = item.getAttribute("data-id");
@@ -346,6 +416,36 @@
         }, 150);
       });
     });
+
+    board.querySelectorAll(".board-card").forEach(function (card) {
+      card.addEventListener("dragstart", function (e) {
+        e.dataTransfer.setData("text/plain", card.getAttribute("data-id"));
+        e.dataTransfer.effectAllowed = "move";
+        card.classList.add("board-card-dragging");
+      });
+      card.addEventListener("dragend", function () {
+        card.classList.remove("board-card-dragging");
+      });
+    });
+    board.querySelectorAll(".board-list-cards").forEach(function (dropZone) {
+      dropZone.addEventListener("dragover", function (e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
+        dropZone.classList.add("board-list-cards-drag-over");
+      });
+      dropZone.addEventListener("dragleave", function () {
+        dropZone.classList.remove("board-list-cards-drag-over");
+      });
+      dropZone.addEventListener("drop", function (e) {
+        e.preventDefault();
+        dropZone.classList.remove("board-list-cards-drag-over");
+        var cardId = e.dataTransfer.getData("text/plain");
+        var listEl = dropZone.closest(".board-list");
+        if (!listEl || !cardId) return;
+        var toListId = listEl.getAttribute("data-list-id");
+        moveCard(cardId, toListId);
+      });
+    });
   }
 
   function escapeHtml(s) {
@@ -353,19 +453,6 @@
     div.textContent = s;
     return div.innerHTML;
   }
-
-  document.querySelectorAll(".sidebar-item").forEach(function (item) {
-    item.addEventListener("click", function () {
-      const t = item.getAttribute("data-tab");
-      document.querySelectorAll(".sidebar-item").forEach(function (x) {
-        x.classList.toggle("active", x.getAttribute("data-tab") === t);
-      });
-      document.querySelectorAll(".panel").forEach(function (p) {
-        p.classList.toggle("active", p.id === t);
-      });
-      renderList(t);
-    });
-  });
 
   function initAuth() {
     var authWrap = document.getElementById("authWrap");
@@ -445,7 +532,7 @@
     if (authLogout) authLogout.addEventListener("click", function () { supabase.auth.signOut(); });
   }
 
-  ["on-sartlar", "kapsama", "destekler", "yillik"].forEach(renderList);
+  renderBoard();
   renderProgress();
 
   if (supabase) {

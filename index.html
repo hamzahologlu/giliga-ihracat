@@ -44,80 +44,11 @@
       </div>
     </header>
 
-    <div class="layout">
-      <aside class="sidebar">
-        <div class="sidebar-section">
-          <div class="sidebar-section-title">Aşamalar</div>
-          <nav class="sidebar-nav">
-            <button type="button" class="sidebar-item active" data-tab="on-sartlar">
-              <span class="sidebar-item-icon">1</span>
-              <span class="sidebar-item-label">Ön Şartlar</span>
-              <span class="sidebar-item-count" data-count="on-sartlar">0/0</span>
-            </button>
-            <button type="button" class="sidebar-item" data-tab="kapsama">
-              <span class="sidebar-item-icon">2</span>
-              <span class="sidebar-item-label">Kapsama Alınma</span>
-              <span class="sidebar-item-count" data-count="kapsama">0/0</span>
-            </button>
-            <button type="button" class="sidebar-item" data-tab="destekler">
-              <span class="sidebar-item-icon">3</span>
-              <span class="sidebar-item-label">Destek Başvuruları</span>
-              <span class="sidebar-item-count" data-count="destekler">0/0</span>
-            </button>
-            <button type="button" class="sidebar-item" data-tab="yillik">
-              <span class="sidebar-item-icon">4</span>
-              <span class="sidebar-item-label">Yıllık Yükümlülükler</span>
-              <span class="sidebar-item-count" data-count="yillik">0/0</span>
-            </button>
-          </nav>
-        </div>
-        <div class="sidebar-footer">
-          <a href="destekler-ozet.html" class="sidebar-link">Destekler ve kapsamları</a>
-        </div>
-      </aside>
-
-      <main class="main">
-        <section id="on-sartlar" class="panel active">
-          <div class="panel-header">
-            <h2 class="panel-title">1. Ön Şartlar</h2>
-            <p class="panel-desc">E-ihracat desteklerine başvurmadan önce sağlamanız gereken temel koşullar.</p>
-          </div>
-          <div class="roadmap">
-            <ul class="todo-list roadmap-list" data-group="on-sartlar"></ul>
-          </div>
-        </section>
-
-        <section id="kapsama" class="panel">
-          <div class="panel-header">
-            <h2 class="panel-title">2. Kapsama Alınma</h2>
-            <p class="panel-desc">Statünüze göre destek kapsamına alınma başvurusu (şirket, perakende e-ticaret, pazaryeri, B2B veya konsorsiyum).</p>
-          </div>
-          <div class="roadmap">
-            <ul class="todo-list roadmap-list" data-group="kapsama"></ul>
-          </div>
-        </section>
-
-        <section id="destekler" class="panel">
-          <div class="panel-header">
-            <h2 class="panel-title">3. Destek Başvuruları</h2>
-            <p class="panel-desc">Ön onay → harcama → ödeme başvurusu (belge tarihinden itibaren 6 ay içinde).</p>
-          </div>
-          <div class="roadmap">
-            <ul class="todo-list roadmap-list" data-group="destekler"></ul>
-          </div>
-        </section>
-
-        <section id="yillik" class="panel">
-          <div class="panel-header">
-            <h2 class="panel-title">4. Yıllık Yükümlülükler</h2>
-            <p class="panel-desc">E-İhracat Değerlendirme Beyanı ve ortaklık değişikliği bildirimi.</p>
-          </div>
-          <div class="roadmap">
-            <ul class="todo-list roadmap-list" data-group="yillik"></ul>
-          </div>
-        </section>
-      </main>
-    </div>
+    <main class="board-main">
+      <div id="board" class="board"></div>
+      <p class="board-hint">Kartları sütunlar arasında sürükleyip bırakarak taşıyabilirsiniz.</p>
+      <p class="board-footer-link"><a href="destekler-ozet.html">Destekler ve kapsamları</a></p>
+    </main>
 
     <footer class="footer">
       <p>T.C. Ticaret Bakanlığı — E-İhracat Destekleri Rehberi (5986 sayılı Karar). <a href="https://ticaret.gov.tr/destekler/e-ihracat-destekleri/genelge-ekleri" target="_blank" rel="noopener">Genelge ekleri</a> · <a href="https://ticaret.gov.tr/destekler/ihracat-destekleri/kep-ve-e-imza-usulu-hakkinda" target="_blank" rel="noopener">KEP / e-imza</a></p>
