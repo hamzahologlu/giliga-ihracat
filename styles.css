@@ -416,6 +416,24 @@ body {
   color: var(--warning, #d97706);
 }
 
+.todo-actions-bar {
+  margin-top: 14px;
+  padding: 12px 14px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.todo-actions-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
 .todo-actions {
   flex-shrink: 0;
   display: flex;
@@ -423,28 +441,52 @@ body {
   gap: 8px;
 }
 
-.todo-actions button {
+.todo-actions .action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-family: var(--font-sans);
   font-size: 13px;
-  padding: 5px 10px;
-  border: none;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  background: var(--bg);
+  background: var(--surface);
   color: var(--text-muted);
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
 }
 
-.todo-actions button:hover {
+.todo-actions .action-btn:hover {
   background: var(--border);
   color: var(--text);
+  border-color: var(--text-muted);
 }
 
-.todo-actions button.note-btn.active,
-.todo-actions button.assignee-btn.active,
-.todo-actions button.deadline-btn.active {
+.todo-actions .action-btn.note-btn.active,
+.todo-actions .action-btn.assignee-btn.active,
+.todo-actions .action-btn.deadline-btn.active,
+.todo-actions .action-btn.date-btn.active {
   background: var(--accent);
   color: var(--surface);
+  border-color: var(--accent);
+}
+
+.todo-actions .action-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.todo-actions .action-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.todo-actions .action-text {
+  white-space: nowrap;
 }
 
 .note-field {

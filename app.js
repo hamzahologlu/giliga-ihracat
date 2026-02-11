@@ -409,14 +409,16 @@
         '<div class="note-field" style="display:none"><textarea placeholder="Not ekle..." rows="2"></textarea><button type="button" class="note-save-btn">Kaydet</button></div>' +
         '</div>' +
         checklistHtml +
+        '<div class="todo-actions-bar">' +
+        '<span class="todo-actions-label">Özellikler</span>' +
         '<div class="todo-actions">' +
-        '<button type="button" class="assignee-btn" aria-label="Sorumlu">Sorumlu</button>' +
-        '<button type="button" class="deadline-btn" aria-label="Termin">Termin</button>' +
-        '<button type="button" class="note-btn" aria-label="Not">Not</button>' +
-        '<button type="button" class="date-btn" aria-label="Tarih">Tarih</button>' +
-        '<button type="button" class="label-btn" aria-label="Etiket">Etiket</button>' +
-        '<button type="button" class="priority-btn" aria-label="Öncelik">Öncelik</button>' +
-        '</div></div></div></li>';
+        '<button type="button" class="action-btn assignee-btn" aria-label="Sorumlu"><span class="action-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><span class="action-text">Sorumlu</span></button>' +
+        '<button type="button" class="action-btn deadline-btn" aria-label="Termin"><span class="action-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span><span class="action-text">Termin</span></button>' +
+        '<button type="button" class="action-btn note-btn" aria-label="Not"><span class="action-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg></span><span class="action-text">Not</span></button>' +
+        '<button type="button" class="action-btn date-btn" aria-label="Tarih"><span class="action-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg></span><span class="action-text">Tarih</span></button>' +
+        '<button type="button" class="action-btn label-btn" aria-label="Etiket"><span class="action-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17-7.17a2 2 0 0 0-2.83 0L2 12v10a2 2 0 0 0 2 2h10a2 2 0 0 0 1.41-.59l7.18-7.18a2 2 0 0 0 0-2.82z"/></svg></span><span class="action-text">Etiket</span></button>' +
+        '<button type="button" class="action-btn priority-btn" aria-label="Öncelik"><span class="action-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></svg></span><span class="action-text">Öncelik</span></button>' +
+        '</div></div></div></div></li>';
     }).join('');
     attachListEvents(list);
   }
