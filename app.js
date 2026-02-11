@@ -17,7 +17,7 @@
     { id: "low", name: "Düşük", class: "priority-low" }
   ];
 
-  var EMPTY_STATE = { done: {}, notes: {}, dates: {}, assignees: {}, deadlines: {}, labels: {}, checklists: {}, priority: {} };
+  var EMPTY_STATE = { done: {}, notes: {}, assignees: {}, deadlines: {}, labels: {}, checklists: {}, priority: {} };
 
   function getState() {
     try {
@@ -33,7 +33,6 @@
     return {
       done: parsed.done || empty.done,
       notes: parsed.notes || empty.notes,
-      dates: parsed.dates || empty.dates,
       assignees: parsed.assignees || empty.assignees,
       deadlines: parsed.deadlines || empty.deadlines,
       labels: parsed.labels || empty.labels,
@@ -75,7 +74,6 @@
         data: {
           done: state.done,
           notes: state.notes,
-          dates: state.dates,
           assignees: state.assignees,
           deadlines: state.deadlines,
           labels: state.labels,
@@ -111,11 +109,6 @@
 
   function persistNote(id, note) {
     if (note) state.notes[id] = note; else delete state.notes[id];
-    saveState(state);
-  }
-
-  function persistDate(id, date) {
-    if (date) state.dates[id] = date; else delete state.dates[id];
     saveState(state);
   }
 
@@ -358,7 +351,6 @@
       var stepNum = index + 1;
       var done = state.done[item.id];
       var note = state.notes[item.id] || "";
-      var date = state.dates[item.id] || "";
       var assignee = state.assignees[item.id] || "";
       var deadline = state.deadlines[item.id] || "";
       var labelId = state.labels[item.id] || "";
@@ -404,7 +396,6 @@
         '<div class="todo-meta">' +
         (assignee ? '<span class="todo-assignee">Sorumlu: ' + escapeHtml(assignee) + '</span>' : '') +
         (deadline ? '<span class="todo-deadline">Termin: ' + escapeHtml(deadline) + '</span>' : '') +
-        (date ? '<span class="todo-date">' + escapeHtml(date) + '</span>' : '') +
         (note ? '<span class="todo-note">' + escapeHtml(note) + '</span>' : '') +
         '<div class="note-field" style="display:none"><textarea placeholder="Not ekle..." rows="2"></textarea><button type="button" class="note-save-btn">Kaydet</button></div>' +
         '</div>' +
@@ -415,7 +406,6 @@
         '<button type="button" class="action-btn assignee-btn" aria-label="Sorumlu"><span class="action-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><span class="action-text">Sorumlu</span></button>' +
         '<button type="button" class="action-btn deadline-btn" aria-label="Termin"><span class="action-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span><span class="action-text">Termin</span></button>' +
         '<button type="button" class="action-btn note-btn" aria-label="Not"><span class="action-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg></span><span class="action-text">Not</span></button>' +
-        '<button type="button" class="action-btn date-btn" aria-label="Tarih"><span class="action-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg></span><span class="action-text">Tarih</span></button>' +
         '<button type="button" class="action-btn label-btn" aria-label="Etiket"><span class="action-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17-7.17a2 2 0 0 0-2.83 0L2 12v10a2 2 0 0 0 2 2h10a2 2 0 0 0 1.41-.59l7.18-7.18a2 2 0 0 0 0-2.82z"/></svg></span><span class="action-text">Etiket</span></button>' +
         '<button type="button" class="action-btn priority-btn" aria-label="Öncelik"><span class="action-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></svg></span><span class="action-text">Öncelik</span></button>' +
         '</div></div></div></div></li>';
@@ -464,27 +454,6 @@
           textarea.focus();
           btn.classList.add("active");
         }
-      });
-    });
-    list.querySelectorAll(".date-btn").forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        var item = btn.closest(".roadmap-step");
-        var id = item.getAttribute("data-id");
-        var current = state.dates[id] || "";
-        showDatePicker(btn, current, "Tarih seçin", function (val) {
-          if (val === null) return;
-          persistDate(id, val);
-          var meta = item.querySelector(".todo-meta");
-          var dateEl = meta.querySelector(".todo-date");
-          if (val) {
-            if (!dateEl) {
-              dateEl = document.createElement("span");
-              dateEl.className = "todo-date";
-              meta.insertBefore(dateEl, meta.firstChild);
-            }
-            dateEl.textContent = val;
-          } else if (dateEl) dateEl.remove();
-        });
       });
     });
     list.querySelectorAll(".assignee-btn").forEach(function (btn) {

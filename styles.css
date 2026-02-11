@@ -400,11 +400,6 @@ body {
   color: var(--text-muted);
 }
 
-.todo-date {
-  font-size: 13px;
-  color: var(--accent);
-}
-
 .todo-assignee {
   font-size: 13px;
   color: var(--text);
@@ -464,8 +459,7 @@ body {
 
 .todo-actions .action-btn.note-btn.active,
 .todo-actions .action-btn.assignee-btn.active,
-.todo-actions .action-btn.deadline-btn.active,
-.todo-actions .action-btn.date-btn.active {
+.todo-actions .action-btn.deadline-btn.active {
   background: var(--accent);
   color: var(--surface);
   border-color: var(--accent);
