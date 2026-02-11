@@ -17,7 +17,7 @@
     { id: "low", name: "Düşük", class: "priority-low" }
   ];
 
-  var EMPTY_STATE = { done: {}, notes: {}, assignees: {}, deadlines: {}, labels: {}, checklists: {}, priority: {}, files: {} };
+  var EMPTY_STATE = { done: {}, notes: {}, assignees: {}, deadlines: {}, labels: {},  priority: {}, files: {} };
   var FILE_MAX_SIZE = 500 * 1024;
   var FILE_MAX_COUNT = 3;
   var currentFileTaskId = null;
@@ -39,7 +39,6 @@
       assignees: parsed.assignees || empty.assignees,
       deadlines: parsed.deadlines || empty.deadlines,
       labels: parsed.labels || empty.labels,
-      checklists: parsed.checklists || empty.checklists,
       priority: parsed.priority || empty.priority,
       files: parsed.files || empty.files
     };
@@ -81,7 +80,6 @@
           assignees: state.assignees,
           deadlines: state.deadlines,
           labels: state.labels,
-          checklists: state.checklists,
           priority: state.priority,
           files: state.files
         },
@@ -132,11 +130,6 @@
     saveState(state);
   }
 
-  function persistChecklist(id, items) {
-    if (items && items.length) state.checklists[id] = items; else delete state.checklists[id];
-    saveState(state);
-  }
-
   function persistPriority(id, priorityId) {
     if (priorityId) state.priority[id] = priorityId; else delete state.priority[id];
     saveState(state);
@@ -145,18 +138,6 @@
   function persistFiles(id, list) {
     if (list && list.length) state.files[id] = list; else delete state.files[id];
     saveState(state);
-  }
-
-  function addChecklistItem(taskId, groupId, text) {
-    if (!text) return;
-    var items = (state.checklists[taskId] || []).slice();
-    items.push({ id: "cl-" + Date.now() + "-" + Math.random().toString(36).slice(2), text: text, done: false });
-    persistChecklist(taskId, items);
-    renderList(groupId);
-    var list = document.querySelector('.todo-list[data-group="' + groupId + '"]');
-    var newStep = list && list.querySelector('.roadmap-step[data-id="' + taskId + '"]');
-    var block = newStep && newStep.querySelector(".task-checklist-block");
-    if (block) block.style.display = "block";
   }
 
   function getCounts() {
@@ -399,33 +380,12 @@
       var deadline = state.deadlines[item.id] || "";
       var labelId = state.labels[item.id] || "";
       var priorityId = state.priority[item.id] || "";
-      var checklistItems = state.checklists[item.id] || [];
       var taskFiles = state.files[item.id] || [];
       var labelOpt = LABEL_OPTIONS.find(function (o) { return o.id === labelId; });
       var priorityOpt = PRIORITY_OPTIONS.find(function (o) { return o.id === priorityId; });
-      var clDone = checklistItems.filter(function (c) { return c.done; }).length;
-      var clTotal = checklistItems.length;
       var badgesHtml = "";
       if (labelOpt) badgesHtml += '<span class="task-label ' + labelOpt.class + '" data-label-id="' + labelOpt.id + '" title="' + escapeHtml(labelOpt.name) + '"></span>';
       if (priorityOpt) badgesHtml += '<span class="task-priority ' + priorityOpt.class + '">' + escapeHtml(priorityOpt.name) + '</span>';
-      var checklistHtml = '<div class="task-checklist-block" style="display:none">';
-      if (checklistItems.length) {
-        checklistHtml += '<div class="task-checklist-wrap">' +
-          '<div class="task-checklist-summary"><span class="checklist-progress">' + clDone + '/' + clTotal + '</span> alt görev</div>' +
-          '<ul class="checklist-items">' +
-          checklistItems.map(function (c) {
-            return '<li class="checklist-item' + (c.done ? " done" : "") + '" data-check-id="' + escapeHtml(c.id) + '">' +
-              '<span class="checklist-check" role="button" tabindex="0" aria-label="İşaretle"></span>' +
-              '<span class="checklist-text">' + escapeHtml(c.text) + '</span>' +
-              '<button type="button" class="checklist-remove" aria-label="Kaldır">&times;</button></li>';
-          }).join("") +
-          '</ul></div>';
-      }
-      checklistHtml += '<div class="checklist-add">' +
-        '<input type="text" class="checklist-input" placeholder="Alt görev ekle..." />' +
-        '<button type="button" class="checklist-add-btn">Ekle</button></div>' +
-        '</div>' +
-        '<button type="button" class="checklist-toggle-btn">' + (checklistItems.length ? "Alt görevler (" + clDone + "/" + clTotal + ")" : "Alt görevler") + '</button>';
 
       return '<li class="roadmap-step' + (done ? " done" : "") + '" data-id="' + item.id + '">' +
         '<div class="roadmap-step-marker"><span class="roadmap-step-num">' + stepNum + '</span></div>' +
@@ -447,7 +407,6 @@
         }).join("") + '</div>' : '') +
         '<div class="note-field" style="display:none"><textarea placeholder="Not ekle..." rows="2"></textarea><button type="button" class="note-save-btn">Kaydet</button></div>' +
         '</div>' +
-        checklistHtml +
         '<div class="todo-actions-bar">' +
         '<span class="todo-actions-label">Özellikler</span>' +
         '<div class="todo-actions">' +
@@ -622,70 +581,6 @@
           var groupId = list.getAttribute("data-group");
           renderList(groupId);
         });
-      });
-    });
-
-    list.querySelectorAll(".checklist-toggle-btn").forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        var step = btn.closest(".roadmap-step");
-        var block = step.querySelector(".task-checklist-block");
-        if (block) block.style.display = block.style.display === "none" ? "block" : "none";
-      });
-    });
-
-    list.querySelectorAll(".checklist-add-btn").forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        var step = btn.closest(".roadmap-step");
-        var id = step.getAttribute("data-id");
-        var input = step.querySelector(".checklist-input");
-        var text = (input && input.value) ? input.value.trim() : "";
-        addChecklistItem(id, list.getAttribute("data-group"), text);
-        if (input) input.value = "";
-      });
-    });
-    list.querySelectorAll(".checklist-input").forEach(function (input) {
-      input.addEventListener("keydown", function (e) {
-        if (e.key === "Enter") {
-          e.preventDefault();
-          var step = input.closest(".roadmap-step");
-          var id = step.getAttribute("data-id");
-          var text = input.value.trim();
-          addChecklistItem(id, list.getAttribute("data-group"), text);
-          input.value = "";
-        }
-      });
-    });
-
-    list.querySelectorAll(".checklist-check").forEach(function (span) {
-      span.addEventListener("click", function () {
-        var li = span.closest(".checklist-item");
-        var step = li.closest(".roadmap-step");
-        var id = step.getAttribute("data-id");
-        var checkId = li.getAttribute("data-check-id");
-        var items = (state.checklists[id] || []).map(function (c) {
-          if (c.id === checkId) return { id: c.id, text: c.text, done: !c.done };
-          return c;
-        });
-        persistChecklist(id, items);
-        li.classList.toggle("done", !li.classList.contains("done"));
-        var doneCount = items.filter(function (c) { return c.done; }).length;
-        var toggleBtn = step.querySelector(".checklist-toggle-btn");
-        if (toggleBtn) toggleBtn.textContent = "Alt görevler (" + doneCount + "/" + items.length + ")";
-        var summary = step.querySelector(".checklist-progress");
-        if (summary) summary.textContent = doneCount + "/" + items.length;
-      });
-    });
-
-    list.querySelectorAll(".checklist-remove").forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        var li = btn.closest(".checklist-item");
-        var step = li.closest(".roadmap-step");
-        var id = step.getAttribute("data-id");
-        var checkId = li.getAttribute("data-check-id");
-        var items = (state.checklists[id] || []).filter(function (c) { return c.id !== checkId; });
-        persistChecklist(id, items);
-        var groupId = list.getAttribute("data-group");
-        renderList(groupId);
       });
     });
 
