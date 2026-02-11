@@ -4,46 +4,21 @@
   var saveToCloudTimer = null;
   var authMode = "signin";
 
-  function getDefaultCardListAndOrder() {
-    var cardList = {};
-    var cardOrder = { "on-sartlar": [], "kapsama": [], "destekler": [], "yillik": [] };
-    var data = window.EIHRACAT_TODO_DATA || {};
-    Object.keys(cardOrder).forEach(function (groupId) {
-      var items = data[groupId];
-      if (items) items.forEach(function (item) {
-        cardList[item.id] = groupId;
-        cardOrder[groupId].push(item.id);
-      });
-    });
-    return { cardList: cardList, cardOrder: cardOrder };
-  }
-
   function getState() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      var defaults = getDefaultCardListAndOrder();
-      const base = { done: {}, notes: {}, dates: {}, assignees: {}, deadlines: {}, cardList: defaults.cardList, cardOrder: defaults.cardOrder };
+      const base = { done: {}, notes: {}, dates: {}, assignees: {}, deadlines: {} };
       if (!raw) return base;
       const parsed = JSON.parse(raw);
-      var cardList = parsed.cardList;
-      var cardOrder = parsed.cardOrder;
-      if (!cardList || !cardOrder) {
-        var d = getDefaultCardListAndOrder();
-        cardList = cardList || d.cardList;
-        cardOrder = cardOrder || d.cardOrder;
-      }
       return {
         done: parsed.done || {},
         notes: parsed.notes || {},
         dates: parsed.dates || {},
         assignees: parsed.assignees || {},
-        deadlines: parsed.deadlines || {},
-        cardList: cardList,
-        cardOrder: cardOrder
+        deadlines: parsed.deadlines || {}
       };
     } catch (_) {
-      var d = getDefaultCardListAndOrder();
-      return { done: {}, notes: {}, dates: {}, assignees: {}, deadlines: {}, cardList: d.cardList, cardOrder: d.cardOrder };
+      return { done: {}, notes: {}, dates: {}, assignees: {}, deadlines: {} };
     }
   }
 
@@ -82,9 +57,7 @@
           notes: state.notes,
           dates: state.dates,
           assignees: state.assignees,
-          deadlines: state.deadlines,
-          cardList: state.cardList,
-          cardOrder: state.cardOrder
+          deadlines: state.deadlines
         },
         updated_at: new Date().toISOString()
       };
@@ -93,15 +66,12 @@
   }
 
   function replaceState(data) {
-    var d = getDefaultCardListAndOrder();
-    var base = { done: {}, notes: {}, dates: {}, assignees: {}, deadlines: {}, cardList: d.cardList, cardOrder: d.cardOrder };
+    var base = { done: {}, notes: {}, dates: {}, assignees: {}, deadlines: {} };
     state.done = data && data.done ? data.done : base.done;
     state.notes = data && data.notes ? data.notes : base.notes;
     state.dates = data && data.dates ? data.dates : base.dates;
     state.assignees = data && data.assignees ? data.assignees : base.assignees;
     state.deadlines = data && data.deadlines ? data.deadlines : base.deadlines;
-    state.cardList = data && data.cardList ? data.cardList : base.cardList;
-    state.cardOrder = data && data.cardOrder ? data.cardOrder : base.cardOrder;
     saveState(state);
     fullRefresh();
   }
@@ -117,14 +87,6 @@
     { id: "destekler", title: "3. Destek Başvuruları", desc: "Ön onay → harcama → ödeme başvurusu (6 ay içinde)." },
     { id: "yillik", title: "4. Yıllık Yükümlülükler", desc: "E-İhracat Değerlendirme Beyanı ve ortaklık değişikliği bildirimi." }
   ];
-
-  var ALL_CARDS = {};
-  (function () {
-    var data = window.EIHRACAT_TODO_DATA || {};
-    Object.keys(data).forEach(function (groupId) {
-      (data[groupId] || []).forEach(function (item) { ALL_CARDS[item.id] = { id: item.id, title: item.title, detail: item.detail }; });
-    });
-  })();
 
   const state = getState();
 
@@ -155,11 +117,12 @@
 
   function getCounts() {
     var counts = {};
+    var data = window.EIHRACAT_TODO_DATA || {};
     BOARD_LISTS.forEach(function (list) {
-      var ids = state.cardOrder[list.id] || [];
+      var items = data[list.id] || [];
       var done = 0;
-      ids.forEach(function (id) { if (state.done[id]) done++; });
-      counts[list.id] = { done: done, total: ids.length };
+      items.forEach(function (item) { if (state.done[item.id]) done++; });
+      counts[list.id] = { done: done, total: items.length };
     });
     return counts;
   }
@@ -185,19 +148,6 @@
     });
   }
 
-  function moveCard(cardId, toListId) {
-    var fromListId = state.cardList[cardId];
-    if (!fromListId || fromListId === toListId) return;
-    var orderFrom = state.cardOrder[fromListId] || [];
-    var orderTo = state.cardOrder[toListId] || [];
-    state.cardOrder[fromListId] = orderFrom.filter(function (id) { return id !== cardId; });
-    state.cardOrder[toListId] = orderTo.concat([cardId]);
-    state.cardList[cardId] = toListId;
-    saveState(state);
-    renderBoard();
-    renderProgress();
-  }
-
   function renderCard(item) {
     var done = state.done[item.id];
     var note = state.notes[item.id] || "";
@@ -205,7 +155,7 @@
     var assignee = state.assignees[item.id] || "";
     var deadline = state.deadlines[item.id] || "";
     return (
-      '<div class="board-card roadmap-step' + (done ? " done" : "") + '" data-id="' + item.id + '" draggable="true">' +
+      '<div class="board-card roadmap-step' + (done ? " done" : "") + '" data-id="' + item.id + '">' +
       '<div class="board-card-inner">' +
       '<span class="todo-check" role="button" tabindex="0" aria-label="Tamamla">' +
       (done ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg>' : "") +
@@ -232,9 +182,10 @@
   function renderBoard() {
     var board = document.getElementById("board");
     if (!board) return;
+    var data = window.EIHRACAT_TODO_DATA || {};
     var html = '';
     BOARD_LISTS.forEach(function (list) {
-      var ids = state.cardOrder[list.id] || [];
+      var items = data[list.id] || [];
       var count = getCounts()[list.id];
       var countStr = (count ? count.done : 0) + "/" + (count ? count.total : 0);
       html += '<div class="board-list" data-list-id="' + list.id + '">' +
@@ -244,9 +195,8 @@
         '</div>' +
         '<p class="board-list-desc">' + escapeHtml(list.desc) + '</p>' +
         '<div class="board-list-cards">';
-      ids.forEach(function (id) {
-        var item = ALL_CARDS[id];
-        if (item) html += renderCard(item);
+      items.forEach(function (item) {
+        html += renderCard(item);
       });
       html += '</div></div>';
     });
@@ -417,35 +367,6 @@
       });
     });
 
-    board.querySelectorAll(".board-card").forEach(function (card) {
-      card.addEventListener("dragstart", function (e) {
-        e.dataTransfer.setData("text/plain", card.getAttribute("data-id"));
-        e.dataTransfer.effectAllowed = "move";
-        card.classList.add("board-card-dragging");
-      });
-      card.addEventListener("dragend", function () {
-        card.classList.remove("board-card-dragging");
-      });
-    });
-    board.querySelectorAll(".board-list-cards").forEach(function (dropZone) {
-      dropZone.addEventListener("dragover", function (e) {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = "move";
-        dropZone.classList.add("board-list-cards-drag-over");
-      });
-      dropZone.addEventListener("dragleave", function () {
-        dropZone.classList.remove("board-list-cards-drag-over");
-      });
-      dropZone.addEventListener("drop", function (e) {
-        e.preventDefault();
-        dropZone.classList.remove("board-list-cards-drag-over");
-        var cardId = e.dataTransfer.getData("text/plain");
-        var listEl = dropZone.closest(".board-list");
-        if (!listEl || !cardId) return;
-        var toListId = listEl.getAttribute("data-list-id");
-        moveCard(cardId, toListId);
-      });
-    });
   }
 
   function escapeHtml(s) {

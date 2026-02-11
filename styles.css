@@ -318,28 +318,12 @@ body {
   flex-shrink: 0;
 }
 
-.board-list-cards-drag-over {
-  background: rgba(18, 100, 163, 0.08);
-  border-radius: var(--radius-sm);
-}
-
 .board-card {
-  cursor: grab;
   background: var(--surface);
   border-radius: var(--radius);
   border: 1px solid var(--border);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
-  transition: box-shadow 0.15s, border-color 0.15s;
   position: relative;
-}
-
-.board-card:active {
-  cursor: grabbing;
-}
-
-.board-card-dragging {
-  opacity: 0.6;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .board-card-inner {
@@ -409,12 +393,6 @@ body {
   background: var(--accent);
   color: var(--surface);
   border-color: var(--accent);
-}
-
-.board-hint {
-  margin: 16px 0 0;
-  font-size: 13px;
-  color: var(--text-muted);
 }
 
 .board-footer-link {
