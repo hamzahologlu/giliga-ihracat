@@ -2,24 +2,44 @@
   const STORAGE_KEY = "eihracat-destekleri-takip";
   var supabase = null;
   var saveToCloudTimer = null;
-  var authMode = "signin";
+
+  var LABEL_OPTIONS = [
+    { id: "green", name: "Yeşil", class: "label-green" },
+    { id: "yellow", name: "Sarı", class: "label-yellow" },
+    { id: "red", name: "Kırmızı", class: "label-red" },
+    { id: "blue", name: "Mavi", class: "label-blue" },
+    { id: "purple", name: "Mor", class: "label-purple" },
+    { id: "orange", name: "Turuncu", class: "label-orange" }
+  ];
+  var PRIORITY_OPTIONS = [
+    { id: "high", name: "Yüksek", class: "priority-high" },
+    { id: "medium", name: "Orta", class: "priority-medium" },
+    { id: "low", name: "Düşük", class: "priority-low" }
+  ];
+
+  var EMPTY_STATE = { done: {}, notes: {}, dates: {}, assignees: {}, deadlines: {}, labels: {}, checklists: {}, priority: {} };
 
   function getState() {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      const base = { done: {}, notes: {}, dates: {}, assignees: {}, deadlines: {} };
-      if (!raw) return base;
-      const parsed = JSON.parse(raw);
-      return {
-        done: parsed.done || {},
-        notes: parsed.notes || {},
-        dates: parsed.dates || {},
-        assignees: parsed.assignees || {},
-        deadlines: parsed.deadlines || {}
-      };
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return mergeState(EMPTY_STATE, {});
+      return mergeState(EMPTY_STATE, JSON.parse(raw));
     } catch (_) {
-      return { done: {}, notes: {}, dates: {}, assignees: {}, deadlines: {} };
+      return mergeState(EMPTY_STATE, {});
     }
+  }
+
+  function mergeState(empty, parsed) {
+    return {
+      done: parsed.done || empty.done,
+      notes: parsed.notes || empty.notes,
+      dates: parsed.dates || empty.dates,
+      assignees: parsed.assignees || empty.assignees,
+      deadlines: parsed.deadlines || empty.deadlines,
+      labels: parsed.labels || empty.labels,
+      checklists: parsed.checklists || empty.checklists,
+      priority: parsed.priority || empty.priority
+    };
   }
 
   function saveState(state) {
@@ -57,7 +77,10 @@
           notes: state.notes,
           dates: state.dates,
           assignees: state.assignees,
-          deadlines: state.deadlines
+          deadlines: state.deadlines,
+          labels: state.labels,
+          checklists: state.checklists,
+          priority: state.priority
         },
         updated_at: new Date().toISOString()
       };
@@ -66,12 +89,8 @@
   }
 
   function replaceState(data) {
-    var base = { done: {}, notes: {}, dates: {}, assignees: {}, deadlines: {} };
-    state.done = data && data.done ? data.done : base.done;
-    state.notes = data && data.notes ? data.notes : base.notes;
-    state.dates = data && data.dates ? data.dates : base.dates;
-    state.assignees = data && data.assignees ? data.assignees : base.assignees;
-    state.deadlines = data && data.deadlines ? data.deadlines : base.deadlines;
+    var next = mergeState(EMPTY_STATE, data || {});
+    Object.keys(EMPTY_STATE).forEach(function (k) { state[k] = next[k]; });
     saveState(state);
     fullRefresh();
   }
@@ -108,6 +127,33 @@
   function persistDeadline(id, date) {
     if (date) state.deadlines[id] = date; else delete state.deadlines[id];
     saveState(state);
+  }
+
+  function persistLabel(id, labelId) {
+    if (labelId) state.labels[id] = labelId; else delete state.labels[id];
+    saveState(state);
+  }
+
+  function persistChecklist(id, items) {
+    if (items && items.length) state.checklists[id] = items; else delete state.checklists[id];
+    saveState(state);
+  }
+
+  function persistPriority(id, priorityId) {
+    if (priorityId) state.priority[id] = priorityId; else delete state.priority[id];
+    saveState(state);
+  }
+
+  function addChecklistItem(taskId, groupId, text) {
+    if (!text) return;
+    var items = (state.checklists[taskId] || []).slice();
+    items.push({ id: "cl-" + Date.now() + "-" + Math.random().toString(36).slice(2), text: text, done: false });
+    persistChecklist(taskId, items);
+    renderList(groupId);
+    var list = document.querySelector('.todo-list[data-group="' + groupId + '"]');
+    var newStep = list && list.querySelector('.roadmap-step[data-id="' + taskId + '"]');
+    var block = newStep && newStep.querySelector(".task-checklist-block");
+    if (block) block.style.display = "block";
   }
 
   function getCounts() {
@@ -161,6 +207,35 @@
       var date = state.dates[item.id] || "";
       var assignee = state.assignees[item.id] || "";
       var deadline = state.deadlines[item.id] || "";
+      var labelId = state.labels[item.id] || "";
+      var priorityId = state.priority[item.id] || "";
+      var checklistItems = state.checklists[item.id] || [];
+      var labelOpt = LABEL_OPTIONS.find(function (o) { return o.id === labelId; });
+      var priorityOpt = PRIORITY_OPTIONS.find(function (o) { return o.id === priorityId; });
+      var clDone = checklistItems.filter(function (c) { return c.done; }).length;
+      var clTotal = checklistItems.length;
+      var badgesHtml = "";
+      if (labelOpt) badgesHtml += '<span class="task-label ' + labelOpt.class + '" data-label-id="' + labelOpt.id + '" title="' + escapeHtml(labelOpt.name) + '"></span>';
+      if (priorityOpt) badgesHtml += '<span class="task-priority ' + priorityOpt.class + '">' + escapeHtml(priorityOpt.name) + '</span>';
+      var checklistHtml = '<div class="task-checklist-block" style="display:none">';
+      if (checklistItems.length) {
+        checklistHtml += '<div class="task-checklist-wrap">' +
+          '<div class="task-checklist-summary"><span class="checklist-progress">' + clDone + '/' + clTotal + '</span> alt görev</div>' +
+          '<ul class="checklist-items">' +
+          checklistItems.map(function (c) {
+            return '<li class="checklist-item' + (c.done ? " done" : "") + '" data-check-id="' + escapeHtml(c.id) + '">' +
+              '<span class="checklist-check" role="button" tabindex="0" aria-label="İşaretle"></span>' +
+              '<span class="checklist-text">' + escapeHtml(c.text) + '</span>' +
+              '<button type="button" class="checklist-remove" aria-label="Kaldır">&times;</button></li>';
+          }).join("") +
+          '</ul></div>';
+      }
+      checklistHtml += '<div class="checklist-add">' +
+        '<input type="text" class="checklist-input" placeholder="Alt görev ekle..." />' +
+        '<button type="button" class="checklist-add-btn">Ekle</button></div>' +
+        '</div>' +
+        '<button type="button" class="checklist-toggle-btn">' + (checklistItems.length ? "Alt görevler (" + clDone + "/" + clTotal + ")" : "Alt görevler") + '</button>';
+
       return '<li class="roadmap-step' + (done ? " done" : "") + '" data-id="' + item.id + '">' +
         '<div class="roadmap-step-marker"><span class="roadmap-step-num">' + stepNum + '</span></div>' +
         '<div class="roadmap-step-content">' +
@@ -169,6 +244,7 @@
         (done ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg>' : '') +
         '</span>' +
         '<div class="todo-body">' +
+        (badgesHtml ? '<div class="task-badges">' + badgesHtml + '</div>' : '') +
         '<p class="todo-title">' + escapeHtml(item.title) + '</p>' +
         (item.detail ? '<p class="todo-detail">' + escapeHtml(item.detail) + '</p>' : '') +
         '<div class="todo-meta">' +
@@ -178,11 +254,14 @@
         (note ? '<span class="todo-note">' + escapeHtml(note) + '</span>' : '') +
         '<div class="note-field" style="display:none"><textarea placeholder="Not ekle..." rows="2"></textarea><button type="button" class="note-save-btn">Kaydet</button></div>' +
         '</div>' +
+        checklistHtml +
         '<div class="todo-actions">' +
         '<button type="button" class="assignee-btn" aria-label="Sorumlu">Sorumlu</button>' +
         '<button type="button" class="deadline-btn" aria-label="Termin">Termin</button>' +
         '<button type="button" class="note-btn" aria-label="Not">Not</button>' +
         '<button type="button" class="date-btn" aria-label="Tarih">Tarih</button>' +
+        '<button type="button" class="label-btn" aria-label="Etiket">Etiket</button>' +
+        '<button type="button" class="priority-btn" aria-label="Öncelik">Öncelik</button>' +
         '</div></div></div></li>';
     }).join('');
     attachListEvents(list);
@@ -343,6 +422,102 @@
         }, 150);
       });
     });
+
+    list.querySelectorAll(".label-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var item = btn.closest(".roadmap-step");
+        var id = item.getAttribute("data-id");
+        var current = state.labels[id] || "";
+        var names = LABEL_OPTIONS.map(function (o) { return o.id + "=" + o.name; }).join(", ");
+        var raw = window.prompt("Etiket: " + names + " (veya boş bırak)", current);
+        if (raw === null) return;
+        var chosen = raw.trim().toLowerCase();
+        var opt = LABEL_OPTIONS.find(function (o) { return o.id === chosen || o.name.toLowerCase() === chosen; });
+        persistLabel(id, opt ? opt.id : "");
+        var groupId = list.getAttribute("data-group");
+        renderList(groupId);
+      });
+    });
+
+    list.querySelectorAll(".priority-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var item = btn.closest(".roadmap-step");
+        var id = item.getAttribute("data-id");
+        var current = state.priority[id] || "";
+        var names = PRIORITY_OPTIONS.map(function (o) { return o.id + "=" + o.name; }).join(", ");
+        var raw = window.prompt("Öncelik: " + names + " (veya boş bırak)", current);
+        if (raw === null) return;
+        var chosen = raw.trim().toLowerCase();
+        var opt = PRIORITY_OPTIONS.find(function (o) { return o.id === chosen || o.name.toLowerCase() === chosen; });
+        persistPriority(id, opt ? opt.id : "");
+        var groupId = list.getAttribute("data-group");
+        renderList(groupId);
+      });
+    });
+
+    list.querySelectorAll(".checklist-toggle-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var step = btn.closest(".roadmap-step");
+        var block = step.querySelector(".task-checklist-block");
+        if (block) block.style.display = block.style.display === "none" ? "block" : "none";
+      });
+    });
+
+    list.querySelectorAll(".checklist-add-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var step = btn.closest(".roadmap-step");
+        var id = step.getAttribute("data-id");
+        var input = step.querySelector(".checklist-input");
+        var text = (input && input.value) ? input.value.trim() : "";
+        addChecklistItem(id, list.getAttribute("data-group"), text);
+        if (input) input.value = "";
+      });
+    });
+    list.querySelectorAll(".checklist-input").forEach(function (input) {
+      input.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          var step = input.closest(".roadmap-step");
+          var id = step.getAttribute("data-id");
+          var text = input.value.trim();
+          addChecklistItem(id, list.getAttribute("data-group"), text);
+          input.value = "";
+        }
+      });
+    });
+
+    list.querySelectorAll(".checklist-check").forEach(function (span) {
+      span.addEventListener("click", function () {
+        var li = span.closest(".checklist-item");
+        var step = li.closest(".roadmap-step");
+        var id = step.getAttribute("data-id");
+        var checkId = li.getAttribute("data-check-id");
+        var items = (state.checklists[id] || []).map(function (c) {
+          if (c.id === checkId) return { id: c.id, text: c.text, done: !c.done };
+          return c;
+        });
+        persistChecklist(id, items);
+        li.classList.toggle("done", !li.classList.contains("done"));
+        var doneCount = items.filter(function (c) { return c.done; }).length;
+        var toggleBtn = step.querySelector(".checklist-toggle-btn");
+        if (toggleBtn) toggleBtn.textContent = "Alt görevler (" + doneCount + "/" + items.length + ")";
+        var summary = step.querySelector(".checklist-progress");
+        if (summary) summary.textContent = doneCount + "/" + items.length;
+      });
+    });
+
+    list.querySelectorAll(".checklist-remove").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var li = btn.closest(".checklist-item");
+        var step = li.closest(".roadmap-step");
+        var id = step.getAttribute("data-id");
+        var checkId = li.getAttribute("data-check-id");
+        var items = (state.checklists[id] || []).filter(function (c) { return c.id !== checkId; });
+        persistChecklist(id, items);
+        var groupId = list.getAttribute("data-group");
+        renderList(groupId);
+      });
+    });
   }
 
   function initAuth() {
@@ -356,7 +531,6 @@
     var loginEmail = document.getElementById("loginScreenEmail");
     var loginPassword = document.getElementById("loginScreenPassword");
     var loginError = document.getElementById("loginScreenError");
-    var loginSubmit = document.getElementById("loginScreenSubmit");
     if (!supabase) return;
 
     function setScreen(loggedIn) {
@@ -432,7 +606,6 @@
       document.querySelectorAll(".panel").forEach(function (p) {
         p.classList.toggle("active", p.id === t);
       });
-      renderList(t);
     });
   });
 

@@ -419,6 +419,7 @@ body {
 .todo-actions {
   flex-shrink: 0;
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
@@ -484,6 +485,206 @@ body {
 
 .note-save-btn:hover {
   filter: brightness(1.05);
+}
+
+/* Trello tarzı: etiket, öncelik, alt görevler */
+.task-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+  align-items: center;
+}
+
+.task-label {
+  display: inline-block;
+  width: 40px;
+  height: 8px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.task-label.label-green { background: #61bd4f; }
+.task-label.label-yellow { background: #f2d600; }
+.task-label.label-red { background: #eb5a46; }
+.task-label.label-blue { background: #0079bf; }
+.task-label.label-purple { background: #c377e0; }
+.task-label.label-orange { background: #ff9f1a; }
+
+.task-priority {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.task-priority.priority-high {
+  background: #eb5a46;
+  color: #fff;
+}
+
+.task-priority.priority-medium {
+  background: #f2d600;
+  color: #1d2129;
+}
+
+.task-priority.priority-low {
+  background: #61bd4f;
+  color: #fff;
+}
+
+.task-checklist-block {
+  margin-top: 12px;
+  padding: 12px;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.task-checklist-summary {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.checklist-progress {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.checklist-items {
+  list-style: none;
+  margin: 0 0 10px;
+  padding: 0;
+}
+
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  font-size: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.checklist-item:last-child {
+  border-bottom: none;
+}
+
+.checklist-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border);
+  border-radius: 4px;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.checklist-check:hover {
+  border-color: var(--accent);
+}
+
+.checklist-item.done .checklist-check {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.checklist-item.done .checklist-check::after {
+  content: "✓";
+  display: block;
+  color: #fff;
+  font-size: 12px;
+  line-height: 18px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.checklist-item.done .checklist-text {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+.checklist-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.checklist-remove {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.checklist-remove:hover {
+  background: var(--border);
+  color: var(--text);
+}
+
+.checklist-add {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.checklist-input {
+  flex: 1;
+  padding: 8px 10px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.checklist-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.checklist-add-btn {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: var(--surface);
+  cursor: pointer;
+}
+
+.checklist-add-btn:hover {
+  filter: brightness(1.05);
+}
+
+.checklist-toggle-btn {
+  margin-top: 8px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  padding: 5px 10px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.checklist-toggle-btn:hover {
+  background: var(--border);
+  color: var(--text);
 }
 
 /* Login ekranı — ilk açılış */
@@ -577,46 +778,6 @@ body {
   white-space: nowrap;
 }
 
-.auth-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-
-.auth-modal-backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  cursor: pointer;
-}
-
-.auth-modal-box {
-  position: relative;
-  width: 100%;
-  max-width: 360px;
-  padding: 24px;
-  background: var(--surface);
-  border-radius: var(--radius);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-}
-
-.auth-modal-title {
-  margin: 0 0 8px;
-  font-size: 18px;
-  color: var(--text);
-}
-
-.auth-modal-desc {
-  margin: 0 0 20px;
-  font-size: 14px;
-  color: var(--text-muted);
-  line-height: 1.4;
-}
-
 .auth-form {
   display: flex;
   flex-direction: column;
@@ -651,27 +812,6 @@ body {
 
 .auth-form-actions .auth-btn {
   flex: 1;
-}
-
-.auth-modal-close {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  border: none;
-  background: transparent;
-  color: var(--text-muted);
-  font-size: 24px;
-  line-height: 1;
-  cursor: pointer;
-  border-radius: var(--radius-sm);
-}
-
-.auth-modal-close:hover {
-  background: var(--border);
-  color: var(--text);
 }
 
 /* Footer */
