@@ -76,17 +76,12 @@
     fullRefresh();
   }
 
+  var GROUP_IDS = ["on-sartlar", "kapsama", "destekler", "yillik"];
+
   function fullRefresh() {
-    renderBoard();
+    GROUP_IDS.forEach(renderList);
     renderProgress();
   }
-
-  var BOARD_LISTS = [
-    { id: "on-sartlar", title: "1. Ön Şartlar", desc: "E-ihracat desteklerine başvurmadan önce sağlamanız gereken temel koşullar." },
-    { id: "kapsama", title: "2. Kapsama Alınma", desc: "Statünüze göre destek kapsamına alınma başvurusu." },
-    { id: "destekler", title: "3. Destek Başvuruları", desc: "Ön onay → harcama → ödeme başvurusu (6 ay içinde)." },
-    { id: "yillik", title: "4. Yıllık Yükümlülükler", desc: "E-İhracat Değerlendirme Beyanı ve ortaklık değişikliği bildirimi." }
-  ];
 
   const state = getState();
 
@@ -118,11 +113,11 @@
   function getCounts() {
     var counts = {};
     var data = window.EIHRACAT_TODO_DATA || {};
-    BOARD_LISTS.forEach(function (list) {
-      var items = data[list.id] || [];
+    GROUP_IDS.forEach(function (groupId) {
+      var items = data[groupId] || [];
       var done = 0;
       items.forEach(function (item) { if (state.done[item.id]) done++; });
-      counts[list.id] = { done: done, total: items.length };
+      counts[groupId] = { done: done, total: items.length };
     });
     return counts;
   }
@@ -141,78 +136,65 @@
   }
 
   function updateSidebarCounts(counts) {
-    Object.keys(counts || {}).forEach(function (groupId) {
-      const c = counts[groupId];
-      const span = document.querySelector('.board-list-count[data-list="' + groupId + '"]');
+    (counts && Object.keys(counts)).forEach(function (groupId) {
+      var c = counts[groupId];
+      var span = document.querySelector('.sidebar-item-count[data-count="' + groupId + '"]');
       if (span) span.textContent = (c.done || 0) + "/" + (c.total || 0);
     });
   }
 
-  function renderCard(item) {
-    var done = state.done[item.id];
-    var note = state.notes[item.id] || "";
-    var date = state.dates[item.id] || "";
-    var assignee = state.assignees[item.id] || "";
-    var deadline = state.deadlines[item.id] || "";
-    return (
-      '<div class="board-card roadmap-step' + (done ? " done" : "") + '" data-id="' + item.id + '">' +
-      '<div class="board-card-inner">' +
-      '<span class="todo-check" role="button" tabindex="0" aria-label="Tamamla">' +
-      (done ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg>' : "") +
-      '</span>' +
-      '<div class="todo-body">' +
-      '<p class="todo-title">' + escapeHtml(item.title) + "</p>" +
-      (item.detail ? '<p class="todo-detail">' + escapeHtml(item.detail) + "</p>" : "") +
-      '<div class="todo-meta">' +
-      (assignee ? '<span class="todo-assignee">Sorumlu: ' + escapeHtml(assignee) + "</span>" : "") +
-      (deadline ? '<span class="todo-deadline">Termin: ' + escapeHtml(deadline) + "</span>" : "") +
-      (date ? '<span class="todo-date">' + escapeHtml(date) + "</span>" : "") +
-      (note ? '<span class="todo-note">' + escapeHtml(note) + "</span>" : "") +
-      '<div class="note-field" style="display:none"><textarea placeholder="Not ekle..." rows="2"></textarea><button type="button" class="note-save-btn">Kaydet</button></div>' +
-      '</div>' +
-      '<div class="todo-actions">' +
-      '<button type="button" class="assignee-btn" aria-label="Sorumlu">Sorumlu</button>' +
-      '<button type="button" class="deadline-btn" aria-label="Termin">Termin</button>' +
-      '<button type="button" class="note-btn" aria-label="Not">Not</button>' +
-      '<button type="button" class="date-btn" aria-label="Tarih">Tarih</button>' +
-      '</div></div></div>'
-    );
+  function escapeHtml(s) {
+    var div = document.createElement("div");
+    div.textContent = s;
+    return div.innerHTML;
   }
 
-  function renderBoard() {
-    var board = document.getElementById("board");
-    if (!board) return;
-    var data = window.EIHRACAT_TODO_DATA || {};
-    var html = '';
-    BOARD_LISTS.forEach(function (list) {
-      var items = data[list.id] || [];
-      var count = getCounts()[list.id];
-      var countStr = (count ? count.done : 0) + "/" + (count ? count.total : 0);
-      html += '<div class="board-list" data-list-id="' + list.id + '">' +
-        '<div class="board-list-header">' +
-        '<h3 class="board-list-title">' + escapeHtml(list.title) + '</h3>' +
-        '<span class="board-list-count" data-list="' + list.id + '">' + countStr + '</span>' +
+  function renderList(groupId) {
+    var list = document.querySelector('.todo-list[data-group="' + groupId + '"]');
+    if (!list) return;
+    var items = (window.EIHRACAT_TODO_DATA || {})[groupId];
+    if (!items) return;
+    list.innerHTML = items.map(function (item, index) {
+      var stepNum = index + 1;
+      var done = state.done[item.id];
+      var note = state.notes[item.id] || "";
+      var date = state.dates[item.id] || "";
+      var assignee = state.assignees[item.id] || "";
+      var deadline = state.deadlines[item.id] || "";
+      return '<li class="roadmap-step' + (done ? " done" : "") + '" data-id="' + item.id + '">' +
+        '<div class="roadmap-step-marker"><span class="roadmap-step-num">' + stepNum + '</span></div>' +
+        '<div class="roadmap-step-content">' +
+        '<div class="todo-item">' +
+        '<span class="todo-check" role="button" tabindex="0" aria-label="Tamamla">' +
+        (done ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg>' : '') +
+        '</span>' +
+        '<div class="todo-body">' +
+        '<p class="todo-title">' + escapeHtml(item.title) + '</p>' +
+        (item.detail ? '<p class="todo-detail">' + escapeHtml(item.detail) + '</p>' : '') +
+        '<div class="todo-meta">' +
+        (assignee ? '<span class="todo-assignee">Sorumlu: ' + escapeHtml(assignee) + '</span>' : '') +
+        (deadline ? '<span class="todo-deadline">Termin: ' + escapeHtml(deadline) + '</span>' : '') +
+        (date ? '<span class="todo-date">' + escapeHtml(date) + '</span>' : '') +
+        (note ? '<span class="todo-note">' + escapeHtml(note) + '</span>' : '') +
+        '<div class="note-field" style="display:none"><textarea placeholder="Not ekle..." rows="2"></textarea><button type="button" class="note-save-btn">Kaydet</button></div>' +
         '</div>' +
-        '<p class="board-list-desc">' + escapeHtml(list.desc) + '</p>' +
-        '<div class="board-list-cards">';
-      items.forEach(function (item) {
-        html += renderCard(item);
-      });
-      html += '</div></div>';
-    });
-    board.innerHTML = html;
-    attachBoardEvents();
+        '<div class="todo-actions">' +
+        '<button type="button" class="assignee-btn" aria-label="Sorumlu">Sorumlu</button>' +
+        '<button type="button" class="deadline-btn" aria-label="Termin">Termin</button>' +
+        '<button type="button" class="note-btn" aria-label="Not">Not</button>' +
+        '<button type="button" class="date-btn" aria-label="Tarih">Tarih</button>' +
+        '</div></div></div></li>';
+    }).join('');
+    attachListEvents(list);
   }
 
-  function attachBoardEvents() {
-    var board = document.getElementById("board");
-    if (!board) return;
-
-    board.querySelectorAll(".todo-check").forEach(function (btn) {
+  function attachListEvents(list) {
+    if (!list) return;
+    list.querySelectorAll(".todo-check").forEach(function (btn) {
       btn.addEventListener("click", function () {
-        const step = btn.closest(".roadmap-step");
-        const id = step.getAttribute("data-id");
-        const next = !state.done[id];
+        var step = btn.closest(".roadmap-step");
+        var id = step.getAttribute("data-id");
+        var next = !state.done[id];
         state.done[id] = next;
         persistDone(id, next);
         step.classList.toggle("done", next);
@@ -220,21 +202,21 @@
         renderProgress();
       });
     });
-
-    board.querySelectorAll(".note-btn").forEach(function (btn) {
+    list.querySelectorAll(".note-btn").forEach(function (btn) {
       btn.addEventListener("click", function () {
-        const item = btn.closest(".roadmap-step");
-        const id = item.getAttribute("data-id");
-        const meta = item.querySelector(".todo-meta");
-        const noteField = meta.querySelector(".note-field");
-        const textarea = noteField.querySelector("textarea");
-        const isOpen = noteField.style.display !== "none";
+        var item = btn.closest(".roadmap-step");
+        var id = item.getAttribute("data-id");
+        var meta = item.querySelector(".todo-meta");
+        var noteField = meta.querySelector(".note-field");
+        var textarea = noteField.querySelector("textarea");
+        var isOpen = noteField.style.display !== "none";
         if (isOpen) {
-          const val = textarea.value.trim();
+          var val = textarea.value.trim();
           persistNote(id, val);
-          const noteSpan = meta.querySelector(".todo-note");
-          if (noteSpan) noteSpan.textContent = val; else if (val) {
-            const span = document.createElement("span");
+          var noteSpan = meta.querySelector(".todo-note");
+          if (noteSpan) noteSpan.textContent = val;
+          else if (val) {
+            var span = document.createElement("span");
             span.className = "todo-note";
             span.textContent = val;
             meta.insertBefore(span, noteField);
@@ -249,18 +231,17 @@
         }
       });
     });
-
-    board.querySelectorAll(".date-btn").forEach(function (btn) {
+    list.querySelectorAll(".date-btn").forEach(function (btn) {
       btn.addEventListener("click", function () {
-        const item = btn.closest(".roadmap-step");
-        const id = item.getAttribute("data-id");
-        const current = state.dates[id] || "";
-        const newDate = window.prompt("Tamamlanma veya hedef tarih (örn: 15.02.2025):", current);
+        var item = btn.closest(".roadmap-step");
+        var id = item.getAttribute("data-id");
+        var current = state.dates[id] || "";
+        var newDate = window.prompt("Tamamlanma veya hedef tarih (örn: 15.02.2025):", current);
         if (newDate === null) return;
-        const trimmed = newDate.trim();
+        var trimmed = newDate.trim();
         persistDate(id, trimmed);
-        const meta = item.querySelector(".todo-meta");
-        let dateEl = meta.querySelector(".todo-date");
+        var meta = item.querySelector(".todo-meta");
+        var dateEl = meta.querySelector(".todo-date");
         if (trimmed) {
           if (!dateEl) {
             dateEl = document.createElement("span");
@@ -271,18 +252,17 @@
         } else if (dateEl) dateEl.remove();
       });
     });
-
-    board.querySelectorAll(".assignee-btn").forEach(function (btn) {
+    list.querySelectorAll(".assignee-btn").forEach(function (btn) {
       btn.addEventListener("click", function () {
-        const item = btn.closest(".roadmap-step");
-        const id = item.getAttribute("data-id");
-        const current = state.assignees[id] || "";
-        const name = window.prompt("Sorumlu kişi adı:", current);
+        var item = btn.closest(".roadmap-step");
+        var id = item.getAttribute("data-id");
+        var current = state.assignees[id] || "";
+        var name = window.prompt("Sorumlu kişi adı:", current);
         if (name === null) return;
-        const trimmed = name.trim();
+        var trimmed = name.trim();
         persistAssignee(id, trimmed);
-        const meta = item.querySelector(".todo-meta");
-        let assigneeEl = meta.querySelector(".todo-assignee");
+        var meta = item.querySelector(".todo-meta");
+        var assigneeEl = meta.querySelector(".todo-assignee");
         if (trimmed) {
           if (!assigneeEl) {
             assigneeEl = document.createElement("span");
@@ -293,18 +273,17 @@
         } else if (assigneeEl) assigneeEl.remove();
       });
     });
-
-    board.querySelectorAll(".deadline-btn").forEach(function (btn) {
+    list.querySelectorAll(".deadline-btn").forEach(function (btn) {
       btn.addEventListener("click", function () {
-        const item = btn.closest(".roadmap-step");
-        const id = item.getAttribute("data-id");
-        const current = state.deadlines[id] || "";
-        const newDeadline = window.prompt("Termin tarihi (örn: 15.03.2025):", current);
+        var item = btn.closest(".roadmap-step");
+        var id = item.getAttribute("data-id");
+        var current = state.deadlines[id] || "";
+        var newDeadline = window.prompt("Termin tarihi (örn: 15.03.2025):", current);
         if (newDeadline === null) return;
-        const trimmed = newDeadline.trim();
+        var trimmed = newDeadline.trim();
         persistDeadline(id, trimmed);
-        const meta = item.querySelector(".todo-meta");
-        let deadlineEl = meta.querySelector(".todo-deadline");
+        var meta = item.querySelector(".todo-meta");
+        var deadlineEl = meta.querySelector(".todo-deadline");
         if (trimmed) {
           if (!deadlineEl) {
             deadlineEl = document.createElement("span");
@@ -315,8 +294,7 @@
         } else if (deadlineEl) deadlineEl.remove();
       });
     });
-
-    board.querySelectorAll(".note-save-btn").forEach(function (btn) {
+    list.querySelectorAll(".note-save-btn").forEach(function (btn) {
       btn.addEventListener("click", function () {
         var noteField = btn.closest(".note-field");
         var item = btn.closest(".roadmap-step");
@@ -340,15 +318,14 @@
         if (noteBtn) noteBtn.classList.remove("active");
       });
     });
-
-    board.querySelectorAll(".note-field textarea").forEach(function (ta) {
+    list.querySelectorAll(".note-field textarea").forEach(function (ta) {
       ta.addEventListener("blur", function () {
-        const item = ta.closest(".roadmap-step");
-        const id = item.getAttribute("data-id");
-        const val = ta.value.trim();
+        var item = ta.closest(".roadmap-step");
+        var id = item.getAttribute("data-id");
+        var val = ta.value.trim();
         persistNote(id, val);
-        const meta = item.querySelector(".todo-meta");
-        let noteSpan = meta.querySelector(".todo-note");
+        var meta = item.querySelector(".todo-meta");
+        var noteSpan = meta.querySelector(".todo-note");
         if (val) {
           if (noteSpan) noteSpan.textContent = val;
           else {
@@ -366,13 +343,6 @@
         }, 150);
       });
     });
-
-  }
-
-  function escapeHtml(s) {
-    const div = document.createElement("div");
-    div.textContent = s;
-    return div.innerHTML;
   }
 
   function initAuth() {
@@ -453,7 +423,20 @@
     if (authLogout) authLogout.addEventListener("click", function () { supabase.auth.signOut(); });
   }
 
-  renderBoard();
+  document.querySelectorAll(".sidebar-item").forEach(function (item) {
+    item.addEventListener("click", function () {
+      var t = item.getAttribute("data-tab");
+      document.querySelectorAll(".sidebar-item").forEach(function (x) {
+        x.classList.toggle("active", x.getAttribute("data-tab") === t);
+      });
+      document.querySelectorAll(".panel").forEach(function (p) {
+        p.classList.toggle("active", p.id === t);
+      });
+      renderList(t);
+    });
+  });
+
+  GROUP_IDS.forEach(renderList);
   renderProgress();
 
   if (supabase) {
