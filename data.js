@@ -2,11 +2,14 @@ window.EIHRACAT_TODO_DATA = {
   "on-sartlar": [
     { id: "os-1", title: "İncelemeci kuruluş olarak kullanacağınız ihracatçı birliğini belirlemek", detail: "Destek başvuruları üye olunan ihracatçı birliği (incelemeci kuruluş) üzerinden yapılır; hangi birliğe üye olunacağını netleştirin." },
     { id: "os-2", title: "İhracatçı birliğine üyelik başvurusu yapmak", detail: "Seçilen ihracatçı birliğine resmî üyelik başvurusunda bulunun." },
-    { id: "os-3", title: "Üyelik onayını almak ve üyelik belgesini saklamak", detail: "Üyelik onayı sonrası belgeyi başvurularda kullanmak üzere hazır tutun." },
-    { id: "os-4", title: "DYS (Destek Yönetim Sistemi) portalına giriş yapmak", detail: "dyb.ticaret.gov.tr adresinden DYS’ye erişin; giriş bilgilerinizi oluşturun." },
-    { id: "os-5", title: "DYS’de firma kaydı oluşturmak", detail: "Sistemde şirketinizi kayıtlı hale getirin; tüm zorunlu alanları doldurun." },
-    { id: "os-6", title: "MERSİS numarası ile kaydı eşleştirmek", detail: "MERSİS kaydınız varsa DYS ile eşleştirme yapın." },
-    { id: "os-7", title: "NACE (faaliyet) kodunu güncellemek", detail: "MERSİS’te kayıtlı faaliyet kodunuzu e-ihracat/dijital ticaret ile uyumlu olacak şekilde güncelleyin." },
+    { id: "os-3", title: "Üyelik onayını almak ve üyelik belgesini saklamak", detail: "Üyelik onayı sonrası belgeyi başvurularda kullanmak üzere hazır tutun. DYS’de 'Birlik Üyelik Sorgulama' ile üyeliğinizi doğrulayabilirsiniz." },
+    { id: "os-4", title: "DYS (Destek Yönetim Sistemi) portalına erişmek", detail: "dys.ticaret.gov.tr adresinden DYS’ye giriş yapın. Başvuru, üye olduğunuz İhracatçı Birliğine; üye değilseniz istediğiniz İhracatçı Birlikleri Genel Sekreterliğine yapılır." },
+    { id: "os-5", title: "DYS yararlanıcı tanımlama belgelerini hazırlamak", detail: "DYS’ye kayıt için yararlanıcı tanımlama işlemlerinde istenen belgeleri hazırlayın; gerekli liste dys.ticaret.gov.tr Sıkça Sorulan Sorular bölümünde yer alır." },
+    { id: "os-6", title: "DYS’de yararlanıcı (firma) kaydı oluşturmak", detail: "İhracatçı Birliğine başvurarak yararlanıcı tanımlama işleminizi yaptırın; sistemde şirketiniz kayıtlı hale getirilir (sadece ana şirket; şubeler için tanımlama yapılmaz)." },
+    { id: "os-6b", title: "DYS kullanıcı yetkilendirme belgelerini hazırlamak", detail: "Sistemi sizin adınıza kullanacak kişiler için yetkilendirme belgeleri gerekir; DYS SSS’deki 'Kullanıcı Yetkilendirme İşlemleri için Gerekli Belgeler' linkinden listeyi indirin." },
+    { id: "os-6c", title: "DYS kullanıcı yetkilendirmesini tamamlamak", detail: "Yararlanıcı tanımlaması sonrası, kullanıcı yetkilendirme sürecini tamamlayarak DYS’ye giriş yapabilecek kullanıcıları tanımlayın." },
+    { id: "os-7", title: "MERSİS numarası ile kaydı eşleştirmek", detail: "DYS’de esas alınan tanımlayıcı MERSİS numarasıdır; MERSİS numarası ayrı olan her yararlanıcı ayrı tanımlanır." },
+    { id: "os-7a", title: "NACE (faaliyet) kodunu güncellemek", detail: "MERSİS’te kayıtlı faaliyet kodunuzu e-ihracat/dijital ticaret ile uyumlu olacak şekilde güncelleyin." },
     { id: "os-8", title: "Yararlanıcı statüsünü tek olarak seçmek", detail: "Şirket, perakende e-ticaret sitesi, pazaryeri, B2B platformu veya E-İhracat Konsorsiyumu — sadece bir statü ile tüm desteklerden yararlanılır." },
     { id: "os-9", title: "Türk ürünü kriterini belgeleyecek üretim/tedarik sürecini netleştirmek", detail: "Üretimin tamamı veya bir bölümü Türkiye’de olmalı; süreci belgeleyebilecek şekilde kayıt tutun." },
     { id: "os-10", title: "Ürün ve platformda Türkiye üretim yeri bilgisini eklemek", detail: "Listeleme ve ürün sayfalarında KTÜN ve Türkiye’ye ait üretim yeri bilgisini kullanın." },
@@ -19,8 +22,12 @@ window.EIHRACAT_TODO_DATA = {
     { id: "os-17", title: "Organik bağ varsa %51+ ortaklık ve kuruluş sırası belgesini hazırlamak", detail: "Yurt dışı harcama yapan şirket varsa en az %51 ortaklık; yurt dışı şirket yararlanıcıdan sonra kurulmuş olmalı (istisnalar Genelge’de)." },
     { id: "os-18", title: "İlişkili kişi çatışması olmadığını kontrol etmek", detail: "Harcamayı yapan ile faturayı düzenleyen taraf ilişkili kişi olmamalı (ortaklar, yönetim/denetim, eşler, hısımlar vb.)." },
     { id: "os-19", title: "Listeleme ve tanıtımda Türkiye imajına uygunluk kontrolü yapmak", detail: "Ürün içeriklerinde 'Türkiye' ifadesi kullanın; tanıtımda ülke imajına zarar vermeyin." },
-    { id: "os-20", title: "ticaret.gov.tr genelge ekleri sayfasından güncel formları indirmek", detail: "Başvurularda kullanılacak formlar genelge ekleri sayfasından indirilir." },
-    { id: "os-21", title: "KEP (Kayıtlı Elektronik Posta) kullanımını başlatmak", detail: "Başvurular KEP üzerinden yapılır; KEP hesabı edinin ve kullanımı alışkanlık haline getirin." }
+    { id: "os-20", title: "5986 sayılı Karar ve Karara İlişkin Genelge'yi okumak", detail: "ticaret.gov.tr/destekler/e-ihracat-destekleri sayfasından '5986 Sayılı E-İhracat Destekleri Hakkında Karar' ile 'Karara İlişkin Genelge' metinlerini indirip inceleyin." },
+    { id: "os-20b", title: "Genelge ekleri ve destek üst limitleri sayfasını incelemek", detail: "ticaret.gov.tr e-ihracat destekleri sayfasındaki 'Genelge Ekleri ve Destek Üst Limitleri' bölümünden güncel formları ve her destek türü için üst limitleri kontrol edin." },
+    { id: "os-21", title: "KEP ve e-imza usulünü öğrenmek; KEP kullanımını başlatmak", detail: "Başvurular KEP üzerinden yapılır; ticaret.gov.tr 'KEP ve E-İmza Usulü Hakkında' sayfasını okuyup KEP hesabı edinin." },
+    { id: "os-22", title: "DYS ve e-ihracat kılavuzlarını incelemek", detail: "dys.ticaret.gov.tr 'Kılavuzlar ve Dikkat Edilecek Hususlar' ile ticaret.gov.tr e-ihracat destekleri sayfasındaki 'Kılavuzlar' bölümünü okuyun." },
+    { id: "os-23", title: "İhtiyaç halinde destek kanallarını bilmek (Kolay Destek, Uzmana/Müşavire Danışın)", detail: "Kolay Destek (kolaydestek.gov.tr), Kolay İhracat Platformu (kolayihracat.gov.tr), DYS Uzmana/Müşavire Danışın ve Birliklere Danışın (TİM) seçenekleri mevcuttur." },
+    { id: "os-24", title: "E-İhracat Destekleri sunumları ve eğitim videolarını izlemek (isteğe bağlı)", detail: "ticaret.gov.tr e-ihracat destekleri sayfasındaki 'E-İhracat Destekleri Sunumları ve Eğitim Videoları' ile 'Yeni Nesil İhracat Destekleri ve Prefinansman Modeli' tanıtımını izleyin." }
   ],
   "kapsama": [
     { id: "ka-1", title: "Şirket: Kapsama alınma başvuru formunu doldurmak", detail: "Şirket Başvuru Formu; incelemeci kuruluşa (ihracatçı birliği) sunulacak." },
@@ -73,13 +80,15 @@ window.EIHRACAT_TODO_DATA = {
     { id: "de-21", title: "Çevrim içi mağaza ve hedef ülke paydaşları: Ön onay ve çeyrek dönem ödeme başvurusu (6 ay)", detail: "Çeyrek dönem belgeleri; 6 ay kuralı." },
     { id: "de-22", title: "Pazaryeri komisyon gideri desteği: Desteklenecek ülke/pazaryeri listesine uygunluğu kontrol etmek", detail: "Hedef ülkelerde +20 puan; listeye uygunluk şart." },
     { id: "de-23", title: "Pazaryeri komisyon gideri desteği: Ön onay ve çeyrek dönem komisyon belgeleri ile ödeme (6 ay)", detail: "6 ay kuralına uygun ödeme başvurusu." },
-    { id: "de-24", title: "Genel: Türk ürünü satış oranına göre destek hesaplandığını bilmek", detail: "Destekler Türk ürünü satış oranına göre hesaplanır; üst limitler Genelge’de belirtilir." }
+    { id: "de-24", title: "Genel: Türk ürünü satış oranına göre destek hesaplandığını bilmek", detail: "Destekler Türk ürünü satış oranına göre hesaplanır; üst limitler Genelge’de belirtilir." },
+    { id: "de-25", title: "Harcama ve ödeme belgelerini DYS usulüne uygun tutmak", detail: "Faturalar, sözleşmeler, dekontlar ve diğer belgeler DYS’deki 'Harcama ve Ödeme Belgelerinin Yönetilmesi' ve künye havuzu kurallarına uygun saklanmalı; üçüncü taraflar dysbg.ticaret.gov.tr ile belge doğrulama yapabilir." }
   ],
   "yillik": [
     { id: "yi-1", title: "E-İhracat Değerlendirme Beyanı formunu hazırlamak", detail: "Her takvim yılı için bir sonraki yılın Nisan ayının ilk iş gününe kadar sunulacak." },
     { id: "yi-2", title: "E-İhracat Değerlendirme Beyanını incelemeci kuruluşa sunmak", detail: "E-İhracat Sekretaryasına iletilmek üzere incelemeci kuruluşa verilir." },
     { id: "yi-3", title: "Ortaklık yapısı değiştiyse: Değişiklik tarihinden itibaren 1 ay içinde DYS’ye bildirmek", detail: "Ortaklık oranı veya 6563 sayılı Kanun kapsamında ekonomik bütünlük değişirse bilgi ve belge yüklenir." },
     { id: "yi-4", title: "Ödeme başvuruları için 6 ay kuralını takip etmek", detail: "Her destek türünde ödeme belge tarihinden itibaren en geç 6 ay içinde ilgili ödeme başvurusu incelemeci kuruluşa yapılmalı." },
-    { id: "yi-5", title: "Çeyrek/yarım dönem takvimi oluşturmak (Ocak–Mart, Nisan–Haziran vb.)", detail: "Hangi dönemde hangi destek için ödeme başvurusu yapılacağını planlayın; 6 ayı aşmayın." }
+    { id: "yi-5", title: "Çeyrek/yarım dönem takvimi oluşturmak (Ocak–Mart, Nisan–Haziran vb.)", detail: "Hangi dönemde hangi destek için ödeme başvurusu yapılacağını planlayın; 6 ayı aşmayın." },
+    { id: "yi-6", title: "DYS ve ticaret.gov.tr e-ihracat duyurularını takip etmek", detail: "dys.ticaret.gov.tr ile ticaret.gov.tr/destekler/e-ihracat-destekleri duyurularını (E-Kolay İhracat, İhracat Akademisi, E-İhracat Organizasyonları/Konferanslar, mevzuat güncellemeleri) düzenli kontrol edin." }
   ]
 };
