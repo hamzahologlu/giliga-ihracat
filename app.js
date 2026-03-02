@@ -96,7 +96,7 @@
     fullRefresh();
   }
 
-  var GROUP_IDS = ["on-sartlar", "kapsama", "destekler", "yillik"];
+  var GROUP_IDS = ["on-sartlar", "kapsama", "pazaryeri-hesaplari", "destekler", "yillik"];
 
   function fullRefresh() {
     GROUP_IDS.forEach(renderList);
