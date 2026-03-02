@@ -396,8 +396,10 @@
         '</span>' +
         '<div class="todo-body">' +
         (badgesHtml ? '<div class="task-badges">' + badgesHtml + '</div>' : '') +
-        '<p class="todo-title">' + escapeHtml(item.title) + '</p>' +
-        (item.detail ? '<p class="todo-detail">' + escapeHtml(item.detail) + '</p>' : '') +
+        '<p class="todo-title-label">Görev Başlığı</p><p class="todo-title">' + escapeHtml(item.title) + '</p>' +
+        (item.aciklama ? '<p class="todo-section-label">Görev Açıklaması (Basit Anlatım)</p><p class="todo-aciklama">' + escapeHtml(item.aciklama) + '</p>' : '') +
+        (item.neYapilacak ? '<p class="todo-section-label">Görevde Ne Yapılacağı (Basit Anlatım)</p><p class="todo-ne-yapilacak">' + escapeHtml(item.neYapilacak) + '</p>' : '') +
+        (!item.aciklama && !item.neYapilacak && item.detail ? '<p class="todo-detail">' + escapeHtml(item.detail) + '</p>' : '') +
         '<div class="todo-meta">' +
         (assignee ? '<span class="todo-assignee">Sorumlu: ' + escapeHtml(assignee) + '</span>' : '') +
         (deadline ? '<span class="todo-deadline">Termin: ' + escapeHtml(deadline) + '</span>' : '') +
